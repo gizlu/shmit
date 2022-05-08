@@ -1,6 +1,13 @@
 # shmit
 shit that don't deserve separate repos
 
+
+## scripts
+| File           | Description |
+|----------------|-------------|
+| |[**scripts/argv_to_c.sh**](scripts/argv_to_c.sh) | dead simple shell script for printing argv
+as c array. Inspired by [ImgToC.c](https://github.com/DanielGibson/Snippets/blob/master/ImgToC.c). |
+
 ## shlag - single header libs that don't deserve separate repos
 | File           | Description |
 |----------------|-------------|
