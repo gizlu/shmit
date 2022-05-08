@@ -4,7 +4,8 @@ shit that don't deserve separate repos
 ## scripts
 | File           | Description |
 |----------------|-------------|
-| [**scripts/argv_to_c.sh**](scripts/argv_to_c.sh) | dead simple shell script for printing argv as c array. Useful for debugging and calling exec*() by hand. Inspired by [ImgToC.c](https://github.com/DanielGibson/Snippets/blob/master/ImgToC.c). |
+| [**scripts/argv_to_c.sh**](scripts/argv_to_c.sh) | dead simple shell script for printing argv as c array. Useful for debugging and calling exec\*() by hand. Inspired by [ImgToC.c](https://github.com/DanielGibson/Snippets/blob/master/ImgToC.c). |
+| [**scripts/screenshot.sh**](scripts/screenshot.sh) | dead simple shell script for doing screenshots of selected area/current window/all displays and saving them in clipoard and disk. Depends on maim and xclip |
 
 ## shlag - single header libs that don't deserve separate repos
 | File           | Description |
