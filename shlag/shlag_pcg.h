@@ -17,7 +17,8 @@
  * be just patch on MIT/Apache licensed PCG. At end of file you could find license text (MIT)
  * While I tried to make it unbiased I warrant nothing
  *
- * TODO (MAYBE): float number generation, advancing prng by n steps without generating numbers
+ * TODO (MAYBE): float number generation, advancing prng by n steps without generating
+ * numbers (it may be useful in multithreaded programs)
  */
 
 #ifndef SHLAG_PCG_H
@@ -62,8 +63,8 @@ uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max);
 
 #endif /* SHLAG_PCG_H */
 
-// Example for seeding prng, generating few numbers, and re-rolling prng to
-// certain position. See examples/pcg_simple.c for how to compile it.
+// Example for seeding prng and generating few numbers.
+// See examples/pcg_simple.c for how to compile it.
 #ifdef SHLAG_PCG_EXAMPLE
 #include <stddef.h>
 #include <stdio.h>
