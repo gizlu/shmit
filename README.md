@@ -11,7 +11,10 @@ shit that don't deserve separate repos
 | File           | Description |
 |----------------|-------------|
 |[**shlag/shlag_pcg.h**](shlag/shlag_pcg.h) | 32 bit [pcg](https://www.pcg-random.org/) pseudorandom generator wrapped in single header C/C++ library along fast, unbiased algorithm for reducting numbers to specified range. MIT licensed. |
+|[**shlag/shlag_btt.h**](shlag/shlag_btt.h) | Single header lib implementation of binary to text encodings such as base64. It supports in-place encoding, so you don't have to allocate separate buffer. Currently only base64 encoder is implemented (TODO: b64 decoder, other formats like b32, tests and examples).|
 
 ### shlag examples
 Simple examples are often included within lib header, and are enabled with
 macro. You can test them by building files such as [**shlag/examples/pcg_simple.c**](shlag/examples/pcg_simple.c)
+
+TODO: Add makefile or something for examples and tests
