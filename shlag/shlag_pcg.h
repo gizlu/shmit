@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         initstate = strtoul(argv[4], NULL, 10);
         initseq = strtoul(argv[5], NULL, 10);
     } else { // seed with current time
-        initstate = time(NULL);
+        initstate = (uint64_t)time(NULL);
         initseq = initstate;
         // Yes, seeding with current time makes generated output predictable, but I
         // think it is good enough for things like war card game simulation done for fun
