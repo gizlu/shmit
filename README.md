@@ -13,5 +13,4 @@ shit that don't deserve separate repos
 
 ### shlag examples
 Simple examples are often included within lib header, and are enabled with
-macro. You can test them by building files such as `examples/<short_libname>_simple.c`
-(for instance [**shlag/examples/pcg_simple.c**](shlag/examples/pcg_simple.c)
+macro. You can test them by building files such as [**shlag/examples/pcg_simple.c**](shlag/examples/pcg_simple.c)
