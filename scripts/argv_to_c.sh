@@ -1,5 +1,6 @@
 #!/bin/sh
 # dead simple script for printing argv as c array. Inspired by ImgToC.c
+# License: Do what the fuck you want, just dont blame me for anything
 usage()
 {
   printf 'Usage: %s {--with-argc|-h|--help} command [command_args...]\n' "$0" >&2

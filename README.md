@@ -1,7 +1,6 @@
 # shmit
 shit that don't deserve separate repos
 
-
 ## scripts
 | File           | Description |
 |----------------|-------------|
@@ -13,7 +12,7 @@ as c array. Inspired by [ImgToC.c](https://github.com/DanielGibson/Snippets/blob
 |----------------|-------------|
 |[**shlag/shlag_pcg.h**](shlag/shlag_pcg.h) | 32 bit [pcg](https://www.pcg-random.org/)
 pseudorandom generator wrapped in single header C/C++ library along fast, unbiased algorithm
-for reducting numbers to specified range. |
+for reducting numbers to specified range. MIT licensed. |
 
 ### shlag examples
 Simple examples are often included within lib header, and are enabled with
