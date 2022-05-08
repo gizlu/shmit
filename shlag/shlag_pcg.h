@@ -25,7 +25,7 @@
 #define SHLAG_PCG_H
 #include <stdint.h>
 
-// Prepend function definitions with whatever you want. You can use it
+// Prepend public function definitions with whatever you want. You can use it
 // for example to make functions static. By default it does nothing
 #ifndef SHLAG_PCG_DEF
  #define SHLAG_PCG_DEF
@@ -48,14 +48,14 @@ typedef struct shlag_pcg32{
 // - @initstate specifies where you are in that period, you can pass any 64-bit value.
 // - @initseq selects which stream you will use, you can pass any 64-bit value,
 // although only the low 63 bits are significant.  
-void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq);
+SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq);
 
 // gen random u32
-uint32_t shlag_pcg32_rand(shlag_pcg32* rng); 
+SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng); 
 // gen random u32 in range <0, @bound). Right side exclusive. @bound shall not be 0
-uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound);
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound);
 // gen random u32 in range <@min, @max>. Both sides inclusive. @max shall be greater than @min
-uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max);
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max);
 
 #ifdef __cplusplus
  }
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
  #define SHLAG_PCG_ASSERT(x) do {} while(0)
 #endif
 
-void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq)
+SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq)
 {
     rng->state = 0U;
     rng->inc = (initseq << 1u) | 1u;
@@ -131,7 +131,7 @@ void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq)
     SHLAG_PCG_ASSERT((rng->inc % 2) == 1); // inc must be odd
 }
 
-uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
+SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
     uint64_t oldstate = rng->state;
     rng->state = oldstate * 6364136223846793005ULL + rng->inc;
     uint32_t xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
@@ -139,7 +139,7 @@ uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound) {
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound) {
     SHLAG_PCG_ASSERT(bound > 0);
     uint64_t random32bit, multiresult;
     uint32_t leftover;
@@ -158,7 +158,7 @@ uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound) {
     return multiresult >> 32; // <0, bound)
 }
 
-uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max) 
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max) 
 {
     SHLAG_PCG_ASSERT(max > min);
     const uint32_t rangesize = max-min+1;
