@@ -19,7 +19,13 @@
  #define SHLAG_BTT_DEF
 #endif
 
-// TODO: define SHLAG_B64_ENCSIZE_LIMIT constant to avoid overflows
+// Just arbitrary choosen limit of encoded input size. *enc() and *ENCSIZE() assume that @inSize <= BTT_ENCSIZE_LIMIT
+// Very likely it could be increased (up to (UINT64_MAX-1)/4*3 in case of base64) but I don't warrant it because:
+// - I'm not sure, and unable to test it (ackshualy I have one retarded hack in mind - mmap on highly compressed fs)
+// - 1TB is more than enough. You gotta be insane to use base64 or base32 for such a big shit
+// I reserve right to change it and not call it API break (just in case having 2138TB RAM becomes the standard or something)
+#define SHLAG_BTT_ENCSIZE_LIMIT (uint64_t)1024 * 1024 * 1024 * 1024
+
 // calc buffer size needed for encoding n bytes as base64 with padding (including null terminator)
 #define SHLAG_B64_ENCSIZE(n) ((uint64_t)(n) + 2)/3 * 4  + 1
 
