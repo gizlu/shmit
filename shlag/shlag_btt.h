@@ -21,12 +21,12 @@
 
 // TODO: define SHLAG_B64_ENCSIZE_LIMIT constant to avoid overflows
 // calc buffer size needed for encoding n bytes as base64 with padding (including null terminator)
-#define SHLAG_B64_ENCSIZE(n) ((n) + 2)/3 * 4  + 1
+#define SHLAG_B64_ENCSIZE(n) ((uint64_t)(n) + 2)/3 * 4  + 1
 
 // encode @in buffer, of specified size into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // size of @out shall be >= SHLAG_B64_ENCSIZE(inSize)
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint32_t inSize, unsigned char* out);
+SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsigned char* out);
 
 #endif // SHLAG_BTT_H
 
@@ -61,10 +61,10 @@ static inline void shlag_b64enc_leftover(const unsigned char* in, unsigned char*
     }
 }
 
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint32_t inSize, unsigned char* out)
+SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsigned char* out)
 {
     // we encode in backwards order to avoid overwriting not yet encoded data (to make inplace enc possible)
-    uint32_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
+    uint64_uint64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
     out[outLen] = '\0';
     const uint8_t leftover = inSize % 3; // how many bytes after packs of 3
     if(leftover) {
@@ -72,8 +72,8 @@ SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint32_t inSize, unsign
         shlag_b64enc_leftover(in + inSize, out + outLen, leftover);
     }
     // We can't just use inSize for loop iterator because unsigned underflow would screw us
-    const uint32_t sections = inSize/3; 
-    for(uint32_t i = 0; i < sections; ++i) {
+    const uint64_t sections = inSize/3; 
+    for(uint64_t i = 0; i < sections; ++i) {
         outLen -= 4;
         inSize -= 3;
         shlag_b64enc_triplet(in + inSize, out + outLen);
