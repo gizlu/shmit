@@ -67,11 +67,12 @@ SUITE(b64BinEncodingSuite) {
 
 TEST encBufSizeMacroShouldReportRightSize(void) {
     unsigned sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
-    for(int i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
-         ASSERT_EQ_FMT(sizelookup[i], SHLAG_B64_ENCSIZE(i), "%d");
+    for(unsigned i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
+         ASSERT_EQ(sizelookup[i], SHLAG_B64_ENCSIZE(i));
     }
     PASS();
 }
+
 
 /* padding len macro */
 /* padding write */
