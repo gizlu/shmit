@@ -70,7 +70,7 @@ static inline void shlag_b64enc_leftover(const unsigned char* in, unsigned char*
 SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsigned char* out)
 {
     // we encode in backwards order to avoid overwriting not yet encoded data (to make inplace enc possible)
-    uint64_uint64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
+    uint64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
     out[outLen] = '\0';
     const uint8_t leftover = inSize % 3; // how many bytes after packs of 3
     if(leftover) {
