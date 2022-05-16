@@ -56,8 +56,8 @@ SUITE(b64StrEncodingSuite) {
 SUITE(b64BinEncodingSuite) {
     // RFC 3548 examples
     BASE64_ENC_TEST("\x14\xfb\x9c\x03\xd9\x7e", "FPucA9l+");
-    BASE64_ENC_TEST("\x14\xfb\x9c\x03\xd9", "FPucA9k");
-    BASE64_ENC_TEST("\x14\xfb\x9c\x03", "FPucAw");
+    BASE64_ENC_TEST("\x14\xfb\x9c\x03\xd9", "FPucA9k=");
+    BASE64_ENC_TEST("\x14\xfb\x9c\x03", "FPucAw==");
     // My own test cases with nulls
     BASE64_ENC_TEST("\0", "AA==");
     BASE64_ENC_TEST("\0a", "AGE=");
@@ -73,15 +73,11 @@ TEST encBufSizeMacroShouldReportRightSize(void) {
     PASS();
 }
 
-
-/* padding len macro */
-/* padding write */
-
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line options, initialization. */
 
     RUN_SUITE(b64StrEncodingSuite);
-    /* RUN_SUITE(b64BinEncodingSuite); */
+    RUN_SUITE(b64BinEncodingSuite);
     RUN_TEST(encBufSizeMacroShouldReportRightSize);
 
     GREATEST_MAIN_END();        /* display results */
