@@ -9,6 +9,7 @@
 // ization obviously won't work with shitest aproach (at least not that smoothly
 // like with other libs)
 //
+// Used namespaces: SHITEST_, SHI_, shi_
 // In *one* of C or C++ file, you have to define SHITEST_IMPL before including
 // shitest. For examples see `shlag/tests/` directory
 
