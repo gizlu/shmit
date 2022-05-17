@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #define SHLAG_BTT_IMPL
 #define SHLAG_BTT_DEF static // optional, but makes smaller exec
 #include "shlag_btt.h"
@@ -11,51 +12,83 @@
 #define SHITEST_DEF static
 #include "shitest.h"
 
-// Test inplace and outplace encoding. Last byte of @in is not encoded
-// This is the cleanest (xD) way I found, to avoid long repetitive test cases without
-// sharing big buffer across unrelated tests (it could potentialy hide OOBs from sanitizer)
-#define B64_ENC_TEST(in, expected) \
-do { \
-    char buf[sizeof(expected)]; \
-    SHI_TESTm("b64enc("#in"): "); \
-    shlag_b64enc((unsigned char*)in, sizeof(in)-1, (unsigned char*)buf); \
-    if(SHI_ASSERT_STREQ(expected, buf)) SHI_PASS(); \
-    \
-    SHI_TESTm("b64enc_inplace("#in"): "); \
-    memcpy(buf, in, sizeof(in)-1); /* reuse buff for inplace enc */ \
-    shlag_b64enc((unsigned char*)buf, sizeof(in)-1, (unsigned char*)buf); \
-    if(SHI_ASSERT_STREQ(expected, buf)) SHI_PASS(); \
-} while(0)
+typedef struct TestPair
+{
+    unsigned char* plain; // plain, possibly binary data
+    char* plainStringized; // stringized form of possibly binary @plain, meant for debug info
+    char* enc; // encoded data
+    unsigned plainSize;
+    unsigned encodedSize;
+} TestPair;
+
+// construct test pair.
+// Last byte of @plain (preasumbly null terminator) is ignored
+#define TEST_PAIR(plain, encoded) \
+{(unsigned char*)(plain), #plain, encoded, sizeof((plain))-1, sizeof(encoded)}
+
+void b64_test_outplace_enc(TestPair pair)
+{
+    // We don't use one big buffer for all tests despite we can, because it
+    // it could potentialy hide OOB bugs from sanitizer
+    SHI_TESTf("b64enc(%s): ", pair.plainStringized);
+    unsigned char* out = malloc(pair.encodedSize);
+    shlag_b64enc(pair.plain, pair.plainSize, out);
+    if(SHI_ASSERT_STREQ(pair.enc, (char*)out)) SHI_PASS();
+    free(out); 
+}
+
+void b64_test_inplace_enc(TestPair pair)
+{
+    SHI_TESTf("b64enc_inplace(%s): ", pair.plainStringized);
+    unsigned char* out = malloc(pair.encodedSize);
+    memcpy(out, pair.plain, pair.plainSize);
+    shlag_b64enc(out, pair.plainSize, out);
+    if(SHI_ASSERT_STREQ(pair.enc, (char*)out)) SHI_PASS();
+    free(out); 
+}
 
 void b64enc_testsuite()
 {
-    fprintf(stderr, "test if b64enc encodes data correctly (normally and inplace)\n");
-    // RFC 4648 examples
-    B64_ENC_TEST("", "");
-    B64_ENC_TEST("f", "Zg==");
-    B64_ENC_TEST("fo", "Zm8=");
-    B64_ENC_TEST("foo", "Zm9v");
-    B64_ENC_TEST("foob", "Zm9vYg==");
-    B64_ENC_TEST("fooba", "Zm9vYmE=");
-    B64_ENC_TEST("foobar", "Zm9vYmFy");
-    // Wikipedia examples
-    B64_ENC_TEST("sure.", "c3VyZS4=");
-    B64_ENC_TEST("sure", "c3VyZQ==");
-    B64_ENC_TEST("sur", "c3Vy");
-    B64_ENC_TEST("su", "c3U=");
-    B64_ENC_TEST("leasure.", "bGVhc3VyZS4=");
-    B64_ENC_TEST("easure.", "ZWFzdXJlLg==");
-    B64_ENC_TEST("asure.", "YXN1cmUu");
-    B64_ENC_TEST("sure.", "c3VyZS4=");
-    // RFC 3548 examples
-    B64_ENC_TEST("\x14\xfb\x9c\x03\xd9\x7e", "FPucA9l+");
-    B64_ENC_TEST("\x14\xfb\x9c\x03\xd9", "FPucA9k=");
-    B64_ENC_TEST("\x14\xfb\x9c\x03", "FPucAw==");
-    // My own test cases with nulls
-    B64_ENC_TEST("\0", "AA==");
-    B64_ENC_TEST("\0a", "AGE=");
-    B64_ENC_TEST("a\0b\0", "YQBiAA==");
-    B64_ENC_TEST("\0\0\0\0", "AAAAAA==");
+    TestPair pairs[] = { 
+        // RFC 4648 examples
+        TEST_PAIR("", ""),
+        TEST_PAIR("f", "Zg=="),
+        TEST_PAIR("fo", "Zm8="),
+        TEST_PAIR("foo", "Zm9v"),
+        TEST_PAIR("foob", "Zm9vYg=="),
+        TEST_PAIR("fooba", "Zm9vYmE="),
+        TEST_PAIR("foobar", "Zm9vYmFy"),
+        // Wikipedia examples
+        TEST_PAIR("sure.", "c3VyZS4="),
+        TEST_PAIR("sure", "c3VyZQ=="),
+        TEST_PAIR("sur", "c3Vy"),
+        TEST_PAIR("su", "c3U="),
+        TEST_PAIR("leasure.", "bGVhc3VyZS4="),
+        TEST_PAIR("easure.", "ZWFzdXJlLg=="),
+        TEST_PAIR("asure.", "YXN1cmUu"),
+        TEST_PAIR("sure.", "c3VyZS4="),
+        // RFC 3548 examples
+        TEST_PAIR("\x14\xfb\x9c\x03\xd9\x7e", "FPucA9l+"),
+        TEST_PAIR("\x14\xfb\x9c\x03\xd9", "FPucA9k="),
+        TEST_PAIR("\x14\xfb\x9c\x03", "FPucAw=="),
+        // My own test cases with nulls
+        TEST_PAIR("\0", "AA=="),
+        TEST_PAIR("\0a", "AGE="),
+        TEST_PAIR("a\0b\0", "YQBiAA=="),
+        TEST_PAIR("\0\0\0\0", "AAAAAA==")
+    };
+    const unsigned pairs_count = sizeof(pairs)/sizeof(pairs[0]);
+
+    fprintf(stderr, "test if b64enc encodes data correctly, to separate buffer\n");
+    for(unsigned i = 0; i<pairs_count; ++i) {
+        b64_test_outplace_enc(pairs[i]);
+    }
+    fputs(SHI_SEP, stderr);
+
+    fprintf(stderr, "test if b64enc encodes data correctly, to same buffer (inplace)\n");
+    for(unsigned i = 0; i<pairs_count; ++i) {
+        b64_test_inplace_enc(pairs[i]);
+    }
     fputs(SHI_SEP, stderr);
 }
 
@@ -76,7 +109,7 @@ void b64encsize_test_maxsize()
 }
 void b64encsize_testsuite()
 {
-    fprintf(stderr, "test if b64encsize() reports correct sizes\n");
+    fprintf(stderr, "test if b64encsize() returns correct sizes\n");
     b64encsize_test_smallsizes();
     b64encsize_test_maxsize();
     fputs(SHI_SEP, stderr);
