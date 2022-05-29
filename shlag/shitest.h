@@ -56,7 +56,7 @@ SHITEST_DEF unsigned shi_test_summary();
  fputs(": ", stderr); \
  ++shi_testcount; \
 } while(0)
-// begin test case, with specified name
+// like SHI_TESTf but without formatting
 #define SHI_TESTm(msg) SHI_TESTf("%s", msg)
 
 // mark test as passed. If you don't call it, test is considered as failed in stats
@@ -68,19 +68,23 @@ SHITEST_DEF bool shi_fail_f(const char* fmt, ...);
 // just alias to shi_fail_f() func for style consistency
 #define SHI_FAILf(fmt, ...) shi_fail_f(fmt, __VA_ARGS__)
 
-// Assert that cond is true. On success return true, otherwise fail
-// with suplied msg (printf-like) and return false.
+// Assert macros. On success they just return true, otherwise they print fail msg and return false.
+// Ones with 'f' suffix allow you to supply printf-like formatted msg
+// Ones with 'm' suffix allow you to supply msg without formatting (like puts)
+// Ones without suffix compose msg themselves
+
+// Assert that cond is true
 #define SHI_ASSERTf(cond, fmt, ...) (cond) ? true : SHI_FAILf(fmt, __VA_ARGS__)
+
+// Assert that suplied c strings are equal.
+#define SHI_ASSERT_STREQ(expected, actual) \
+ SHI_ASSERTf(strcmp((expected), (actual)) == 0, "expected: \"%s\", actual: \"%s\"", (expected), (actual))
 
 // Assert that expected == actual and print their values using suplied type formatter if not
 // For example ASSERT_EQ(2, 3, "%d"); will call FAILf("expected: %d, actual: %d", 2, 3)
 #define SHI_ASSERT_EQ(expected, actual, typefmt) \
  SHI_ASSERTf((expected) == (actual), "expected: "typefmt", actual: "typefmt, (expected), (actual))
 
-// Assert that suplied c strings are equal. On success return true, otherwise
-// fail and return false.
-#define SHI_ASSERT_STREQ(expected, actual) \
- SHI_ASSERTf(strcmp((expected), (actual)) == 0, "expected: \"%s\", actual: \"%s\"", (expected), (actual))
 
 #ifdef __cplusplus
  }
