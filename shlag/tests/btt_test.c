@@ -16,31 +16,31 @@ typedef struct TestPair
 {
     uint8_t* plain; // plain, possibly binary data
     char* plainStringized; // stringized form of possibly binary @plain, meant for debug info
-    char* enc; // encoded data
+    char* encoded;
     unsigned plainSize;
-    unsigned encodedSize;
+    unsigned encodedLen;
 } TestPair;
 
 // construct test pair.
 // Last byte of @plain (preasumbly null terminator) is ignored
 #define TEST_PAIR(plain, encoded) \
-{(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, sizeof(encoded)}
+{(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, strlen(encoded)}
 
 void b64_test_outplace_enc(TestPair pair)
 {
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
     SHI_TESTf("b64enc(%s): ", pair.plainStringized);
-    char* out = malloc(pair.encodedSize);
+    char* out = malloc(pair.encodedLen + 1);
     shlag_b64enc(pair.plain, pair.plainSize, out);
-    if(SHI_ASSERT_STREQ(pair.enc, out)) SHI_PASS();
+    if(SHI_ASSERT_STREQ(pair.encoded, out)) SHI_PASS();
     free(out); 
 }
 
 void b64_test_inplace_enc(TestPair pair)
 {
     SHI_TESTf("b64enc_inplace(%s): ", pair.plainStringized);
-    char* out = malloc(pair.encodedSize);
+    char* out = malloc(pair.encodedLen + 1);
     memcpy(out, pair.plain, pair.plainSize);
     shlag_b64enc((uint8_t*)out, pair.plainSize, out);
     if(SHI_ASSERT_STREQ(pair.enc, out)) SHI_PASS();
