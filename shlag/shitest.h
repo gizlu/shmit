@@ -85,6 +85,13 @@ SHITEST_DEF bool shi_fail_f(const char* fmt, ...);
 #define SHI_ASSERT_EQ(expected, actual, typefmt) \
  SHI_ASSERTf((expected) == (actual), "expected: "typefmt", actual: "typefmt, (expected), (actual))
 
+// Assert that first @size bytes of memory pointed by @expected and @actual are equal.
+#define SHI_ASSERT_MEMEQf(expected, actual, size, fmt, ...) \
+ SHI_ASSERTf(memcmp((expected), (actual), (size)) == 0, fmt, __VA_ARGS__)
+
+// like SHI_ASSERT_MEMEQf but without formatting
+#define SHI_ASSERT_MEMEQm(expected, actual, size, msg) \
+ SHI_ASSERT_MEMEQf(expected, actual, size, "%s", msg)
 
 #ifdef __cplusplus
  }
