@@ -26,25 +26,25 @@ typedef struct TestPair
 #define TEST_PAIR(plain, encoded) \
 {(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, strlen(encoded)}
 
-void b64_test_outplace_enc(TestPair pair)
+void b64_test_outplace_enc(TestPair p)
 {
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
-    SHI_TESTf("b64enc(%s): ", pair.plainStringized);
-    char* out = malloc(pair.encodedLen + 1);
-    shlag_b64enc(pair.plain, pair.plainSize, out);
-    if(SHI_ASSERT_STREQ(pair.encoded, out)) SHI_PASS();
+    SHI_TESTf("b64enc(%s): ", p.plainStringized);
+    char* out = malloc(p.encodedLen + 1);
+    shlag_b64enc(p.plain, p.plainSize, out);
+    if(SHI_ASSERT_STREQ(p.encoded, out)) SHI_PASS();
     free(out); 
 }
 
-void b64_test_inplace_enc(TestPair pair)
+void b64_test_inplace_enc(TestPair p)
 {
-    SHI_TESTf("b64enc_inplace(%s): ", pair.plainStringized);
-    char* out = malloc(pair.encodedLen + 1);
-    memcpy(out, pair.plain, pair.plainSize);
-    shlag_b64enc((uint8_t*)out, pair.plainSize, out);
-    if(SHI_ASSERT_STREQ(pair.enc, out)) SHI_PASS();
-    free(out); 
+    SHI_TESTf("b64enc_inplace(%s): ", p.plainStringized);
+    char* buf = malloc(p.encodedLen + 1);
+    memcpy(buf, p.plain, p.plainSize);
+    shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
+    if(SHI_ASSERT_STREQ(p.encoded, buf)) SHI_PASS();
+    free(buf); 
 }
 
 void b64enc_testsuite()
