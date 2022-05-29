@@ -92,27 +92,4 @@ SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsign
         shlag_b64enc_triplet(in + inSize, out + outLen);
     }
 }
-
-//
-/* static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, */
-/* 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, */
-/* 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55, */
-/* 56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5,  6, */
-/* 7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0, */
-/* 0,  0,  0, 63,  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, */
-/* 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 }; */
-
-/* // decode normal block of 4 bytes (result is 3 bytes) */
-/* static inline void shlag_b64dec_quartet(const unsigned char* in, unsigned char* out) */
-/* { */
-/*     out[0] = (in[0] << 2) | (in[1] >> 6); */
-/*     out[1] = (in[1] << 4) | (in[2] >> 2); */
-/*     out[0] = in[0] >> 2; // 6 MSB from 1st */ 
-/*     out[1] = (in[0] & 2) << 4) | ( */
-/* } */
-
-/* SHLAG_BTT_DEF void shlag_b64dec(const unsigned char* in, uint64_t inLen, unsigned char* out) */
-/* { */
-
-/* } */
 #endif // SHLAG_BTT_IMPL
