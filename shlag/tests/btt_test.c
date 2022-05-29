@@ -14,7 +14,7 @@
 
 typedef struct TestPair
 {
-    unsigned char* plain; // plain, possibly binary data
+    uint8_t* plain; // plain, possibly binary data
     char* plainStringized; // stringized form of possibly binary @plain, meant for debug info
     char* enc; // encoded data
     unsigned plainSize;
@@ -24,7 +24,7 @@ typedef struct TestPair
 // construct test pair.
 // Last byte of @plain (preasumbly null terminator) is ignored
 #define TEST_PAIR(plain, encoded) \
-{(unsigned char*)(plain), #plain, encoded, sizeof((plain))-1, sizeof(encoded)}
+{(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, sizeof(encoded)}
 
 void b64_test_outplace_enc(TestPair pair)
 {
@@ -42,7 +42,7 @@ void b64_test_inplace_enc(TestPair pair)
     SHI_TESTf("b64enc_inplace(%s): ", pair.plainStringized);
     char* out = malloc(pair.encodedSize);
     memcpy(out, pair.plain, pair.plainSize);
-    shlag_b64enc((unsigned char*)out, pair.plainSize, out);
+    shlag_b64enc((uint8_t*)out, pair.plainSize, out);
     if(SHI_ASSERT_STREQ(pair.enc, out)) SHI_PASS();
     free(out); 
 }

@@ -36,7 +36,7 @@
 // encode @in buffer, of specified size into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // size of @out shall be >= SHLAG_B64_ENCSIZE(inSize)
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, int64_t inSize, char* out);
+SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
 #ifdef __cplusplus
  }
@@ -48,7 +48,7 @@ SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, int64_t inSize, char* o
 
 static const char* shlag_b64lookup = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // encode normal block of 3 bytes (result is 4 bytes)
-static inline void shlag_b64enc_triplet(const unsigned char* in, char* out)
+static inline void shlag_b64enc_triplet(const uint8_t* in, char* out)
 {
     // yes, it is kinda hard to read as we encode from backwards (to make inplace enc possible)
     out[3] = shlag_b64lookup[in[2] & 0x3F]; // just 6LSB from 3rd byte
@@ -58,7 +58,7 @@ static inline void shlag_b64enc_triplet(const unsigned char* in, char* out)
 }
 
 // encode 1 or 2 byte "leftover" block that goes after packs of threes and pad it with `=` to 4 bytes
-static inline void shlag_b64enc_leftover(const unsigned char* in, char* out, uint8_t leftover)
+static inline void shlag_b64enc_leftover(const uint8_t* in, char* out, uint8_t leftover)
 {
     // yes, it is kinda hard to read as we encode from backwards (to make inplace enc possible)
     if(leftover == 2) {
@@ -74,7 +74,7 @@ static inline void shlag_b64enc_leftover(const unsigned char* in, char* out, uin
     }
 }
 
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, int64_t inSize, char* out)
+SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out)
 {
     // we encode in backwards order to avoid overwriting not yet encoded data (to make inplace enc possible)
     int64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
