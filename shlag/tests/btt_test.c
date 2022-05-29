@@ -94,18 +94,18 @@ void b64enc_testsuite()
 
 void b64encsize_test_smallsizes()
 {
-    unsigned long long sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
+    long long sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
     for(unsigned i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
         SHI_TESTf("b64encsize(%u)", i);
-        unsigned long long result = SHLAG_B64_ENCSIZE(i);
-        if(SHI_ASSERT_EQ(sizelookup[i], result, "%llu")) SHI_PASS();
+        long long result = SHLAG_B64_ENCSIZE(i);
+        if(SHI_ASSERT_EQ(sizelookup[i], result, "%ll")) SHI_PASS();
     }
 }
 void b64encsize_test_maxsize()
 {
     SHI_TESTm("b64_encsize(ENCSIZE_LIMIT): ");
-    unsigned long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
-    if(SHI_ASSERT_EQ(1466015503705LLU, result,  "%llu")) SHI_PASS();
+    long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
+    if(SHI_ASSERT_EQ(1466015503705LLU, result,  "%ll")) SHI_PASS();
 }
 void b64encsize_testsuite()
 {

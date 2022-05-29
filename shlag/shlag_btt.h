@@ -24,19 +24,19 @@
 #endif
 
 // Just arbitrary choosen limit of encoded input size. *enc() and *ENCSIZE() assume that @inSize <= BTT_ENCSIZE_LIMIT
-// Very likely it could be increased (up to (UINT64_MAX-1)/4*3 in case of base64) but I don't warrant it because:
+// Very likely it could be increased but I don't warrant it because:
 // - I'm not sure, and unable to test it (ackshualy I have one retarded hack in mind - mmap on highly compressed fs)
 // - 1TB is more than enough. You gotta be insane to use base64 or base32 for such a big shit
 // I reserve right to change it and not call it API break (just in case having 2138TB RAM becomes the standard or something)
-#define SHLAG_BTT_ENCSIZE_LIMIT (uint64_t)1024 * 1024 * 1024 * 1024
+#define SHLAG_BTT_ENCSIZE_LIMIT (int64_t)1024 * 1024 * 1024 * 1024
 
 // calc buffer size needed for encoding n bytes as base64 with padding (including null terminator)
-#define SHLAG_B64_ENCSIZE(n) ((uint64_t)(n) + 2)/3 * 4  + 1
+#define SHLAG_B64_ENCSIZE(n) ((int64_t)(n) + 2)/3 * 4  + 1
 
 // encode @in buffer, of specified size into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // size of @out shall be >= SHLAG_B64_ENCSIZE(inSize)
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsigned char* out);
+SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, int64_t inSize, unsigned char* out);
 
 #ifdef __cplusplus
  }
@@ -74,19 +74,17 @@ static inline void shlag_b64enc_leftover(const unsigned char* in, unsigned char*
     }
 }
 
-SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, uint64_t inSize, unsigned char* out)
+SHLAG_BTT_DEF void shlag_b64enc(const unsigned char* in, int64_t inSize, unsigned char* out)
 {
     // we encode in backwards order to avoid overwriting not yet encoded data (to make inplace enc possible)
-    uint64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
+    int64_t outLen = SHLAG_B64_ENCSIZE(inSize) - 1;
     out[outLen] = '\0';
     const uint8_t leftover = inSize % 3; // how many bytes after packs of 3
     if(leftover) {
         outLen -= 4; inSize -= leftover;
         shlag_b64enc_leftover(in + inSize, out + outLen, leftover);
     }
-    // We can't just use inSize for loop iterator because unsigned underflow would screw us
-    const uint64_t sections = inSize/3; 
-    for(uint64_t i = 0; i < sections; ++i) {
+    while(inSize > 0) {
         outLen -= 4;
         inSize -= 3;
         shlag_b64enc_triplet(in + inSize, out + outLen);
