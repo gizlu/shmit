@@ -17,6 +17,7 @@
 #define SHITEST_H
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 // Prepend public function definitions with whatever you want. You can use it
 // for example to make functions static. By default it does nothing
