@@ -1,7 +1,7 @@
 /* single file implementation of BinaryToText encodings such as base32 and base64
  *
  * Define SHLAG_BTT_IMPL before you include this file in *one* C or C++ file to create the implementation.
- *
+*
  * encoder is able to encode inplace (you can overwrite input by output - there is
  * no need for another buffer). I haven't yet seen C lib able to do that.
  * Inspired by: https://github.com/dotnet/corefxlab/pull/834/files
@@ -91,5 +91,34 @@ SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out)
         inSize -= 3;
         shlag_b64enc_triplet(in + inSize, out + outLen);
     }
+}
+
+// lookup table for converting base64 character into 6-bit binary
+// Wrong characters return 0
+static const uint8_t shlag_b64dec_lookup[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55,
+56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5,  6,
+7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,
+0,  0,  0, 63,  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+
+// decode normal block of 4 bytes (result is 3 bytes)
+static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
+{
+    out[0] = (shlag_b64dec_lookup[in[0]] << 2) | (shlag_b64dec_lookup[in[1]] >> 4);
+    out[1] = (shlag_b64dec_lookup[in[1]] << 4) | (shlag_b64dec_lookup[in[2]] >> 2);
+    out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
+}
+
+SHLAG_BTT_DEF void shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
+{
+    int64_t i = 0, j = 0;
+    while(i + 4 <= inLen) {
+        shlag_b64dec_quartet((uint8_t*)in + i, out + j);
+        i += 4; j += 3;
+    }
+    // TODO: handle decoding without paddding
+    // TODO (maybe): add some input validation
 }
 #endif // SHLAG_BTT_IMPL
