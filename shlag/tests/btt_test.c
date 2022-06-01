@@ -47,47 +47,87 @@ void b64_test_inplace_enc(TestPair p)
     free(buf); 
 }
 
+void b64_test_outplace_dec(TestPair p)
+{
+    SHI_TESTf("b64dec(\"%s\")", p.encoded);
+    uint8_t* out = malloc(p.plainSize);
+    shlag_b64dec(p.encoded, p.encodedLen, out);
+    if(SHI_ASSERT_MEMEQf(p.plain, out, p.plainSize, "result != %s", p.plainStringized)) {
+        SHI_PASS();
+    }
+    free(out);
+}
+
+void b64_test_inplace_dec(TestPair p)
+{
+    SHI_TESTf("b64dec_inplace(\"%s\")", p.encoded);
+    uint8_t* buf = malloc(p.plainSize);
+    memcpy(buf, p.encoded, p.encodedLen+1);
+    shlag_b64dec(p.encoded, p.encodedLen, buf);
+    if(SHI_ASSERT_MEMEQf(p.plain, buf, p.plainSize, "result != %s", p.plainStringized)) {
+        SHI_PASS();
+    }
+    free(buf);
+}
+
+TestPair valid_b64_pairs[] = {
+    // RFC 4648 examples
+    TEST_PAIR("", ""),
+    TEST_PAIR("f", "Zg=="),
+    TEST_PAIR("fo", "Zm8="),
+    TEST_PAIR("foo", "Zm9v"),
+    TEST_PAIR("foob", "Zm9vYg=="),
+    TEST_PAIR("fooba", "Zm9vYmE="),
+    TEST_PAIR("foobar", "Zm9vYmFy"),
+    // Wikipedia examples
+    TEST_PAIR("sure.", "c3VyZS4="),
+    TEST_PAIR("sure", "c3VyZQ=="),
+    TEST_PAIR("sur", "c3Vy"),
+    TEST_PAIR("su", "c3U="),
+    TEST_PAIR("leasure.", "bGVhc3VyZS4="),
+    TEST_PAIR("easure.", "ZWFzdXJlLg=="),
+    TEST_PAIR("asure.", "YXN1cmUu"),
+    TEST_PAIR("sure.", "c3VyZS4="),
+    // RFC 3548 examples
+    TEST_PAIR("\x14\xfb\x9c\x03\xd9\x7e", "FPucA9l+"),
+    TEST_PAIR("\x14\xfb\x9c\x03\xd9", "FPucA9k="),
+    TEST_PAIR("\x14\xfb\x9c\x03", "FPucAw=="),
+    // My own test cases with nulls
+    TEST_PAIR("\0", "AA=="),
+    TEST_PAIR("\0a", "AGE="),
+    TEST_PAIR("a\0b\0", "YQBiAA=="),
+    TEST_PAIR("\0\0\0\0", "AAAAAA==")
+};
 void b64enc_testsuite()
 {
-    TestPair pairs[] = { 
-        // RFC 4648 examples
-        TEST_PAIR("", ""),
-        TEST_PAIR("f", "Zg=="),
-        TEST_PAIR("fo", "Zm8="),
-        TEST_PAIR("foo", "Zm9v"),
-        TEST_PAIR("foob", "Zm9vYg=="),
-        TEST_PAIR("fooba", "Zm9vYmE="),
-        TEST_PAIR("foobar", "Zm9vYmFy"),
-        // Wikipedia examples
-        TEST_PAIR("sure.", "c3VyZS4="),
-        TEST_PAIR("sure", "c3VyZQ=="),
-        TEST_PAIR("sur", "c3Vy"),
-        TEST_PAIR("su", "c3U="),
-        TEST_PAIR("leasure.", "bGVhc3VyZS4="),
-        TEST_PAIR("easure.", "ZWFzdXJlLg=="),
-        TEST_PAIR("asure.", "YXN1cmUu"),
-        TEST_PAIR("sure.", "c3VyZS4="),
-        // RFC 3548 examples
-        TEST_PAIR("\x14\xfb\x9c\x03\xd9\x7e", "FPucA9l+"),
-        TEST_PAIR("\x14\xfb\x9c\x03\xd9", "FPucA9k="),
-        TEST_PAIR("\x14\xfb\x9c\x03", "FPucAw=="),
-        // My own test cases with nulls
-        TEST_PAIR("\0", "AA=="),
-        TEST_PAIR("\0a", "AGE="),
-        TEST_PAIR("a\0b\0", "YQBiAA=="),
-        TEST_PAIR("\0\0\0\0", "AAAAAA==")
-    };
-    const unsigned pairs_count = sizeof(pairs)/sizeof(pairs[0]);
+    const unsigned pairs_count = sizeof(valid_b64_pairs)/sizeof(valid_b64_pairs[0]);
 
     fprintf(stderr, "test if b64enc encodes data correctly, to separate buffer\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_outplace_enc(pairs[i]);
+        b64_test_outplace_enc(valid_b64_pairs[i]);
     }
     fputs(SHI_SEP, stderr);
 
     fprintf(stderr, "test if b64enc encodes data correctly, to same buffer (inplace)\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_inplace_enc(pairs[i]);
+        b64_test_inplace_enc(valid_b64_pairs[i]);
+    }
+    fputs(SHI_SEP, stderr);
+}
+
+void b64dec_testsuite()
+{
+    const unsigned pairs_count = sizeof(valid_b64_pairs)/sizeof(valid_b64_pairs[0]);
+
+    fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to separate buffer\n");
+    for(unsigned i = 0; i<pairs_count; ++i) {
+        b64_test_outplace_dec(valid_b64_pairs[i]);
+    }
+    fputs(SHI_SEP, stderr);
+
+    fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to same buffer (inplace)\n");
+    for(unsigned i = 0; i<pairs_count; ++i) {
+        b64_test_inplace_dec(valid_b64_pairs[i]);
     }
     fputs(SHI_SEP, stderr);
 }
@@ -117,6 +157,7 @@ void b64encsize_testsuite()
 int main()
 {
     b64enc_testsuite();
+    b64dec_testsuite();
     b64encsize_testsuite();
     return shi_test_summary();
 }
