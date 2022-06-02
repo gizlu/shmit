@@ -21,3 +21,6 @@ meson setup build/
 meson compile -C build/
 ```
 executables will be outputed into build/ dir
+
+For quick check you can use `meson test -C build` which will run some tests
+and examples. NOTE: output is way less verbose than when running them by hand
