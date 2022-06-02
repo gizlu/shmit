@@ -71,7 +71,10 @@ SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uin
 // you may define SHLAG_PCG_ASSERT(x) yourself for customization
 #if defined(SHLAG_PCG_DEBUG) && !defined(SHLAG_PCG_ASSERT) 
  #include <assert.h>
- #define SHLAG_PCG_ASSERT(x) assert((x))
+ void shlag_pcg_assert_func(int x) {
+     assert(x); // GCOV_EXCL_LINE
+ }
+ #define SHLAG_PCG_ASSERT(x)  shlag_pcg_assert_func((x))
 #elif !defined(SHLAG_PCG_DEBUG)
  #define SHLAG_PCG_ASSERT(x) do {} while(0)
 #endif
