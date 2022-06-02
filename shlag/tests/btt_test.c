@@ -30,43 +30,43 @@ void b64_test_outplace_enc(TestPair p)
 {
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
-    SHI_TESTf("b64enc(%s): ", p.plainStringized);
+    shi_test("b64enc(%s): ", p.plainStringized);
     char* out = malloc(p.encodedLen + 1);
     shlag_b64enc(p.plain, p.plainSize, out);
-    if(SHI_ASSERT_STREQ(p.encoded, out)) SHI_PASS();
+    shi_assert_streq(p.encoded, out);
+    shi_test_end();
     free(out); 
 }
 
 void b64_test_inplace_enc(TestPair p)
 {
-    SHI_TESTf("b64enc_inplace(%s): ", p.plainStringized);
+    shi_test("b64enc_inplace(%s): ", p.plainStringized);
     char* buf = malloc(p.encodedLen + 1);
     memcpy(buf, p.plain, p.plainSize);
     shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
-    if(SHI_ASSERT_STREQ(p.encoded, buf)) SHI_PASS();
+    shi_assert_streq(p.encoded, buf);
+    shi_test_end();
     free(buf); 
 }
 
 void b64_test_outplace_dec(TestPair p)
 {
-    SHI_TESTf("b64dec(\"%s\")", p.encoded);
+    shi_test("b64dec(\"%s\")", p.encoded);
     uint8_t* out = malloc(p.plainSize);
     shlag_b64dec(p.encoded, p.encodedLen, out);
-    if(SHI_ASSERT_MEMEQf(p.plain, out, p.plainSize, "result != %s", p.plainStringized)) {
-        SHI_PASS();
-    }
+    shi_assert_memeq_f(p.plain, out, p.plainSize, "result != %s", p.plainStringized);
+    shi_test_end();
     free(out);
 }
 
 void b64_test_inplace_dec(TestPair p)
 {
-    SHI_TESTf("b64dec_inplace(\"%s\")", p.encoded);
+    shi_test("b64dec_inplace(\"%s\")", p.encoded);
     uint8_t* buf = malloc(p.plainSize);
     memcpy(buf, p.encoded, p.encodedLen+1);
     shlag_b64dec(p.encoded, p.encodedLen, buf);
-    if(SHI_ASSERT_MEMEQf(p.plain, buf, p.plainSize, "result != %s", p.plainStringized)) {
-        SHI_PASS();
-    }
+    shi_assert_memeq_f(p.plain, buf, p.plainSize, "result != %s", p.plainStringized);
+    shi_test_end();
     free(buf);
 }
 
@@ -136,16 +136,18 @@ void b64encsize_test_smallsizes()
 {
     long long sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
     for(unsigned i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
-        SHI_TESTf("b64encsize(%u)", i);
+        shi_test("b64encsize(%u)", i);
         long long result = SHLAG_B64_ENCSIZE(i);
-        if(SHI_ASSERT_EQ(sizelookup[i], result, "%ll")) SHI_PASS();
+        shi_assert_eq(sizelookup[i], result, "%ll", long long);
+        shi_test_end();
     }
 }
 void b64encsize_test_maxsize()
 {
-    SHI_TESTm("b64_encsize(ENCSIZE_LIMIT): ");
+    shi_test("b64_encsize(ENCSIZE_LIMIT): ");
     long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
-    if(SHI_ASSERT_EQ(1466015503705LLU, result,  "%ll")) SHI_PASS();
+    shi_assert_eq(1466015503705LL, result,  "%ll", long long);
+    shi_test_end();
 }
 void b64encsize_testsuite()
 {
