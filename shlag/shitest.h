@@ -9,7 +9,8 @@
 //
 // Used namespaces: SHITEST_, SHI_, shi_
 // In *one* of C or C++ file, you have to define SHITEST_IMPL before including
-// shitest. For examples see `shlag/tests/` directory
+// shitest. For examples see `shlag/examples/shitest_example.c` and `shlag/tests/`
+// directory
 //
 // KNOWN BUGS:
 // - Probably not thread safe. To be honest I haven't use threads yet, but I
