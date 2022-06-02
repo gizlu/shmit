@@ -159,5 +159,5 @@ int main()
     b64enc_testsuite();
     b64dec_testsuite();
     b64encsize_testsuite();
-    return shi_test_summary();
+    return (shi_test_summary() > 0);
 }

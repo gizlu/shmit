@@ -118,6 +118,6 @@ SHITEST_DEF unsigned shi_test_summary()
     unsigned failcount = shi_testcount - shi_passcount;
     fprintf(stderr, "total: %u, passed: %u, failed: %u\n", 
             shi_testcount, shi_passcount, failcount);
-    return (failcount > 0);
+    return failcount;
 }
 #endif // SHITEST_IMPL
