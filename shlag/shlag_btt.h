@@ -111,27 +111,39 @@ static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
     out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
 }
 
-
-static inline void shlag_b64dec_leftover(const uint8_t* in, uint8_t* out, uint8_t leftover)
+// decode last block of specified size. Return count of bytes written
+static inline int64_t shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8_t blocksize)
 {
-    // if leftover exists it is always 2 or 3 char long
-    if(leftover >= 2) {
+    if(blocksize == 0) return 0;
+    // TODO: if(blocksize == 1) error
+    if(blocksize >= 2) {
         out[0] = (shlag_b64dec_lookup[in[0]] << 2) | (shlag_b64dec_lookup[in[1]] >> 4);
     }
-    if(leftover == 3) {
+    if(blocksize >= 3) {
         out[1] = (shlag_b64dec_lookup[in[1]] << 4) | (shlag_b64dec_lookup[in[2]] >> 2);
     }
+    if(blocksize == 4) {
+        out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
+    }
+    return blocksize - 1;
 }
-SHLAG_BTT_DEF void shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
+
+// returns count of written bytes
+SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
 {
     int64_t i = 0, j = 0;
-    while(i + 4 <= inLen) {
+    while(i + 4 < inLen) {
         shlag_b64dec_quartet((uint8_t*)in + i, out + j);
         i += 4; j += 3;
     }
-    // in case output is unpadded
-    int64_t leftover = inLen - i;
-    shlag_b64dec_leftover((uint8_t*)in + i, out + j, leftover);
+    // last block is decoded differently (cause its size varies, and it may use padding)
+    int64_t blocksize = 0;
+    while((i + blocksize) < inLen && in[i + blocksize] != '=') {
+        ++blocksize;
+    }
+    int64_t outsize = j + shlag_b64dec_lastblock((uint8_t*)in + i, out + j, blocksize);
+    return outsize;
+    
     // TODO (maybe): add some input validation
 }
 #endif // SHLAG_BTT_IMPL

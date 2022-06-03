@@ -47,14 +47,17 @@ void b64enc_test(TestPair p, bool inplace)
 void b64dec_test(TestPair p, bool inplace)
 {
     uint8_t* buf = malloc(p.plainSize);
+    int64_t outsize;
     if(inplace) {
         shi_test("b64dec_inplace(\"%s\")", p.encoded);
         memcpy(buf, p.encoded, p.encodedLen+1);
-        shlag_b64dec((char*)buf, p.encodedLen, buf);
+        outsize = shlag_b64dec((char*)buf, p.encodedLen, buf);
     } else {
         shi_test("b64dec(\"%s\")", p.encoded);
-        shlag_b64dec(p.encoded, p.encodedLen, buf);
+        outsize = shlag_b64dec(p.encoded, p.encodedLen, buf);
     }
+    shi_assert_f(p.plainSize == outsize, 
+            "expected_size: %lld, actual_size: %lld", p.plainSize, outsize);
     shi_assert_memeq_f(p.plain, buf, p.plainSize, "result != %s", p.plainStringized);
     shi_test_end();
     free(buf);
