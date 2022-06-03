@@ -89,34 +89,22 @@ TestPair valid_b64_pairs[] = {
     TEST_PAIR("a\0b\0", "YQBiAA=="),
     TEST_PAIR("\0\0\0\0", "AAAAAA==")
 };
-void b64enc_testsuite()
+#define ARRSIZE(arr) sizeof(arr)/sizeof(arr[0])
+void b64dec_padded_testsuite(bool inplace)
 {
-    const unsigned pairs_count = sizeof(valid_b64_pairs)/sizeof(valid_b64_pairs[0]);
-
-    fprintf(stderr, "test if b64enc encodes data correctly, to separate buffer\n");
-    for(unsigned i = 0; i<pairs_count; ++i) {
-        b64enc_test(valid_b64_pairs[i], false);
-    }
-    fputs(SHI_SEP, stderr);
-    fprintf(stderr, "test if b64enc encodes data correctly, to same buffer (inplace)\n");
-    for(unsigned i = 0; i<pairs_count; ++i) {
-        b64enc_test(valid_b64_pairs[i], true);
+    fprintf(stderr, "test b64dec %s, with valid, padded data\n",
+            inplace ? "into same buffer (inplace)" : "into external buffer");
+    for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
+        b64dec_test(valid_b64_pairs[i], inplace);
     }
     fputs(SHI_SEP, stderr);
 }
-
-void b64dec_testsuite()
+void b64enc_testsuite(bool inplace)
 {
-    const unsigned pairs_count = sizeof(valid_b64_pairs)/sizeof(valid_b64_pairs[0]);
-
-    fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to separate buffer\n");
-    for(unsigned i = 0; i<pairs_count; ++i) {
-        b64dec_test(valid_b64_pairs[i], false);
-    }
-    fputs(SHI_SEP, stderr);
-    fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to same buffer (inplace)\n");
-    for(unsigned i = 0; i<pairs_count; ++i) {
-        b64dec_test(valid_b64_pairs[i], true);
+    fprintf(stderr, "test b64enc %s\n",
+            inplace ? "into same buffer (inplace)" : "into external buffer");
+    for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
+        b64enc_test(valid_b64_pairs[i], inplace);
     }
     fputs(SHI_SEP, stderr);
 }
@@ -147,8 +135,11 @@ void b64encsize_testsuite()
 }
 int main()
 {
-    b64enc_testsuite();
-    b64dec_testsuite();
+    enum {OUTPLACE = 0, INPLACE = 1};
+    b64enc_testsuite(OUTPLACE);
+    b64enc_testsuite(INPLACE);
+    b64dec_padded_testsuite(OUTPLACE);
+    b64dec_padded_testsuite(INPLACE);
     b64encsize_testsuite();
     return (shi_test_summary() > 0);
 }
