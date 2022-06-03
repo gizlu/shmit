@@ -64,7 +64,7 @@ void b64_test_inplace_dec(TestPair p)
     shi_test("b64dec_inplace(\"%s\")", p.encoded);
     uint8_t* buf = malloc(p.plainSize);
     memcpy(buf, p.encoded, p.encodedLen+1);
-    shlag_b64dec(p.encoded, p.encodedLen, buf);
+    shlag_b64dec((char*)buf, p.encodedLen, buf);
     shi_assert_memeq_f(p.plain, buf, p.plainSize, "result != %s", p.plainStringized);
     shi_test_end();
     free(buf);
