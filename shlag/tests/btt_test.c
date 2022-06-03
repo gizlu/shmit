@@ -17,8 +17,8 @@ typedef struct TestPair
     uint8_t* plain; // plain, possibly binary data
     char* plainStringized; // stringized form of possibly binary @plain, meant for debug info
     char* encoded;
-    unsigned plainSize;
-    unsigned encodedLen;
+    int64_t plainSize;
+    int64_t encodedLen;
 } TestPair;
 
 // construct test pair.
@@ -110,7 +110,7 @@ void b64enc_testsuite(bool inplace)
 }
 // return unpadded copy of suplied string (aka with `=` chars removed).
 // It assumes valid encoding. You have to free it yourself
-char* unpad(char* in, unsigned inLen, unsigned* outLen)
+char* unpad(char* in, int64_t inLen, int64_t* outLen)
 {
     char* padStart = strchr(in, '=');
     *outLen = (padStart == NULL) ? inLen : padStart - in;
@@ -136,7 +136,7 @@ void b64encsize_test_smallsizes()
     for(unsigned i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
         shi_test("b64encsize(%u)", i);
         long long result = SHLAG_B64_ENCSIZE(i);
-        shi_assert_eq(sizelookup[i], result, "%ll", long long);
+        shi_assert_eq(sizelookup[i], result, "%lld", long long);
         shi_test_end();
     }
 }
@@ -144,7 +144,7 @@ void b64encsize_test_maxsize()
 {
     shi_test("b64encsize(ENCSIZE_LIMIT)");
     long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
-    shi_assert_eq(1466015503705LL, result,  "%ll", long long);
+    shi_assert_eq(1466015503705LL, result,  "%lld", long long);
     shi_test_end();
 }
 void b64encsize_testsuite()
