@@ -111,6 +111,17 @@ static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
     out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
 }
 
+
+static inline void shlag_b64dec_leftover(const uint8_t* in, uint8_t* out, uint8_t leftover)
+{
+    // if leftover exists it is always 2 or 3 char long
+    if(leftover >= 2) {
+        out[0] = (shlag_b64dec_lookup[in[0]] << 2) | (shlag_b64dec_lookup[in[1]] >> 4);
+    }
+    if(leftover == 3) {
+        out[1] = (shlag_b64dec_lookup[in[1]] << 4) | (shlag_b64dec_lookup[in[2]] >> 2);
+    }
+}
 SHLAG_BTT_DEF void shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
 {
     int64_t i = 0, j = 0;
@@ -118,7 +129,9 @@ SHLAG_BTT_DEF void shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
         shlag_b64dec_quartet((uint8_t*)in + i, out + j);
         i += 4; j += 3;
     }
-    // TODO: handle decoding without paddding
+    // in case output is unpadded
+    int64_t leftover = inLen - i;
+    shlag_b64dec_leftover((uint8_t*)in + i, out + j, leftover);
     // TODO (maybe): add some input validation
 }
 #endif // SHLAG_BTT_IMPL

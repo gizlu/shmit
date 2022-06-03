@@ -108,7 +108,28 @@ void b64enc_testsuite(bool inplace)
     }
     fputs(SHI_SEP, stderr);
 }
-
+// return unpadded copy of suplied string (aka with `=` chars removed).
+// It assumes valid encoding. You have to free it yourself
+char* unpad(char* in, unsigned inLen, unsigned* outLen)
+{
+    char* padStart = strchr(in, '=');
+    *outLen = (padStart == NULL) ? inLen : padStart - in;
+    char* out = malloc(*outLen+1);
+    memcpy(out, in, *outLen);
+    out[*outLen] = '\0';
+    return out;
+}
+void b64dec_unpadded_testsuite(bool inplace)
+{
+    fprintf(stderr, "b64dec%s with valid, unpadded data\n", inplace ? " inplace" : "");
+    for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
+        TestPair p = valid_b64_pairs[i];
+        p.encoded = unpad(p.encoded, p.encodedLen, &p.encodedLen);
+        b64dec_test(p, inplace);
+        free(p.encoded);
+    }
+    fputs(SHI_SEP, stderr);
+}
 void b64encsize_test_smallsizes()
 {
     long long sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
@@ -140,6 +161,8 @@ int main()
     b64enc_testsuite(INPLACE);
     b64dec_padded_testsuite(OUTPLACE);
     b64dec_padded_testsuite(INPLACE);
+    b64dec_unpadded_testsuite(OUTPLACE);
+    b64dec_unpadded_testsuite(INPLACE);
     b64encsize_testsuite();
     return (shi_test_summary() > 0);
 }
