@@ -26,49 +26,40 @@ typedef struct TestPair
 #define TEST_PAIR(plain, encoded) \
 {(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, strlen(encoded)}
 
-void b64_test_outplace_enc(TestPair p)
+void b64enc_test(TestPair p, bool inplace)
 {
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
-    shi_test("b64enc(%s): ", p.plainStringized);
-    char* out = malloc(p.encodedLen + 1);
-    shlag_b64enc(p.plain, p.plainSize, out);
-    shi_assert_streq(p.encoded, out);
-    shi_test_end();
-    free(out); 
-}
-
-void b64_test_inplace_enc(TestPair p)
-{
-    shi_test("b64enc_inplace(%s): ", p.plainStringized);
     char* buf = malloc(p.encodedLen + 1);
-    memcpy(buf, p.plain, p.plainSize);
-    shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
+    if(inplace) {
+        shi_test("b64enc_inplace(%s)", p.plainStringized);
+        memcpy(buf, p.plain, p.plainSize);
+        shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
+    } else {
+        shi_test("b64enc(%s)", p.plainStringized);
+        shlag_b64enc(p.plain, p.plainSize, buf);
+    }
     shi_assert_streq(p.encoded, buf);
     shi_test_end();
-    free(buf); 
+    free(buf);
 }
 
-void b64_test_outplace_dec(TestPair p)
+void b64dec_test(TestPair p, bool inplace)
 {
-    shi_test("b64dec(\"%s\")", p.encoded);
-    uint8_t* out = malloc(p.plainSize);
-    shlag_b64dec(p.encoded, p.encodedLen, out);
-    shi_assert_memeq_f(p.plain, out, p.plainSize, "result != %s", p.plainStringized);
-    shi_test_end();
-    free(out);
-}
-
-void b64_test_inplace_dec(TestPair p)
-{
-    shi_test("b64dec_inplace(\"%s\")", p.encoded);
     uint8_t* buf = malloc(p.plainSize);
-    memcpy(buf, p.encoded, p.encodedLen+1);
-    shlag_b64dec((char*)buf, p.encodedLen, buf);
+    if(inplace) {
+        shi_test("b64dec_inplace(\"%s\")", p.encoded);
+        memcpy(buf, p.encoded, p.encodedLen+1);
+        shlag_b64dec((char*)buf, p.encodedLen, buf);
+    } else {
+        shi_test("b64dec(\"%s\")", p.encoded);
+        shlag_b64dec(p.encoded, p.encodedLen, buf);
+    }
     shi_assert_memeq_f(p.plain, buf, p.plainSize, "result != %s", p.plainStringized);
     shi_test_end();
     free(buf);
 }
+
 
 TestPair valid_b64_pairs[] = {
     // RFC 4648 examples
@@ -104,13 +95,12 @@ void b64enc_testsuite()
 
     fprintf(stderr, "test if b64enc encodes data correctly, to separate buffer\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_outplace_enc(valid_b64_pairs[i]);
+        b64enc_test(valid_b64_pairs[i], false);
     }
     fputs(SHI_SEP, stderr);
-
     fprintf(stderr, "test if b64enc encodes data correctly, to same buffer (inplace)\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_inplace_enc(valid_b64_pairs[i]);
+        b64enc_test(valid_b64_pairs[i], true);
     }
     fputs(SHI_SEP, stderr);
 }
@@ -121,13 +111,12 @@ void b64dec_testsuite()
 
     fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to separate buffer\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_outplace_dec(valid_b64_pairs[i]);
+        b64dec_test(valid_b64_pairs[i], false);
     }
     fputs(SHI_SEP, stderr);
-
     fprintf(stderr, "test if b64dec decodes valid, padded data correctly, to same buffer (inplace)\n");
     for(unsigned i = 0; i<pairs_count; ++i) {
-        b64_test_inplace_dec(valid_b64_pairs[i]);
+        b64dec_test(valid_b64_pairs[i], true);
     }
     fputs(SHI_SEP, stderr);
 }
