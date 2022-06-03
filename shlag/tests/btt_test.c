@@ -121,7 +121,7 @@ void b64encsize_test_smallsizes()
 }
 void b64encsize_test_maxsize()
 {
-    shi_test("b64_encsize(ENCSIZE_LIMIT): ");
+    shi_test("b64encsize(ENCSIZE_LIMIT)");
     long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
     shi_assert_eq(1466015503705LL, result,  "%ll", long long);
     shi_test_end();
