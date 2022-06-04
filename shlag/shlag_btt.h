@@ -93,16 +93,26 @@ SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out)
     }
 }
 
-// lookup table for converting base64 character into 6-bit binary
-// Wrong characters return 0
-static const uint8_t shlag_b64dec_lookup[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55,
-56, 57, 58, 59, 60, 61,  0,  0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5,  6,
-7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  0,
-0,  0,  0, 63,  0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+#define SHLAG_B64_MAX_VALID 63 // 0b00111111
+#define SHLAG_B64_BAD_CH 64    // 0b01000000
+#define SHLAG_B64_PAD_CH 128   // 0b10000000
+// INVALID_CH and PAD_CH are bitflags used for input validation
 
+// Lookup table for converting base64 character into 6-bit binary
+// Invalid chars are inited with 64. '=' padding is represented as 128
+// generated with script: https://gist.github.com/gizlu/14c5d930241244b8045f3043f8883d93
+static const uint8_t shlag_b64dec_lookup[256] = {64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,62,64,64,64,63,52,53,54,55,56,57,58,59,60,61,64,64,64,128,64,64,64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,64,64,64,64,64,64,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64};
+
+// validate n bytes of input.
+// Set SHLAG_B64_PAD_CH bitflag on @status if `=` occured
+// Set SHLAG_B64_INALID_CH bitflag on @status if invalid char occured
+// other bits are arbitrary overwritten
+static inline void shlag_b64dec_validate(const uint8_t* in, int64_t n, uint8_t* status)
+{
+    for(int i = 0; i<n; ++i) {
+        *status |= shlag_b64dec_lookup[in[i]];
+    }
+}
 // decode normal block of 4 bytes (result is 3 bytes)
 static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
 {
@@ -111,11 +121,9 @@ static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
     out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
 }
 
-// decode last block of specified size. Return count of bytes written
-static inline int64_t shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8_t blocksize)
+// decode last block of specified size
+static inline void shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8_t blocksize)
 {
-    if(blocksize == 0) return 0;
-    // TODO: if(blocksize == 1) error
     if(blocksize >= 2) {
         out[0] = (shlag_b64dec_lookup[in[0]] << 2) | (shlag_b64dec_lookup[in[1]] >> 4);
     }
@@ -125,25 +133,33 @@ static inline int64_t shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, ui
     if(blocksize == 4) {
         out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
     }
-    return blocksize - 1;
 }
-
-// returns count of written bytes
+// decode @in buffer, of specified lenght into @out buffer.
+// @out and @in may point to same buffer - output will just overwrite input
+// On success returns count of written bytes
+// On fail returns negative number 
 SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
 {
+    if(inLen == 0) return 0;
+    uint8_t status = SHLAG_B64_MAX_VALID;
     int64_t i = 0, j = 0;
     while(i + 4 < inLen) {
+        shlag_b64dec_validate((uint8_t*)in + i, 4, &status);
         shlag_b64dec_quartet((uint8_t*)in + i, out + j);
         i += 4; j += 3;
     }
+    if(status & SHLAG_B64_PAD_CH) return -1; // padding can't occur outside last block
+
     // last block is decoded differently (cause its size varies, and it may use padding)
     int64_t blocksize = 0;
     while((i + blocksize) < inLen && in[i + blocksize] != '=') {
         ++blocksize;
     }
-    int64_t outsize = j + shlag_b64dec_lastblock((uint8_t*)in + i, out + j, blocksize);
-    return outsize;
-    
-    // TODO (maybe): add some input validation
+    if(blocksize == 1) return -1; // one byte leftover is impossible in valid b64
+    shlag_b64dec_validate((uint8_t*)in + i, blocksize, &status);
+    if(status & SHLAG_B64_BAD_CH) return -1;
+
+    shlag_b64dec_lastblock((uint8_t*)in + i, out + j, blocksize);
+    return j + blocksize - 1;
 }
 #endif // SHLAG_BTT_IMPL
