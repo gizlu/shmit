@@ -28,7 +28,7 @@
 
 // encode @in buffer, of specified size into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
-// size of @out shall be <= SHLAG_B64_ENCSIZE(inSize). It is assumed that
+// size of @out shall be >= SHLAG_B64_ENCSIZE(inSize). It is assumed that
 // SHLAG_B64_ENCSIZE(inSize) fits in int64_t
 SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
