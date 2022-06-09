@@ -193,9 +193,12 @@ void b64dec_invalid_testsuite()
     fprintf(stderr, "b64dec with invalid lenght should report error\n");
     b64dec_invalid_test("a", 1);
     b64dec_invalid_test("aaaaa", 5);
-    fprintf(stderr, "b64dec with padding outside last 4 bytes should report error\n");
+    fprintf(stderr, "b64dec with invalid padding should report error\n");
     b64dec_invalid_test("aa=aaa", 6);
-    // b64dec_invalid_test("aa=a"); cases like this aren't handled yet
+    b64dec_invalid_test("aa=a", 4);
+    b64dec_invalid_test("a=a", 3);
+    b64dec_invalid_test("=a", 2);
+    b64dec_invalid_test("a=", 2);
     fputs(SHI_SEP, stderr);
 }
 int main()

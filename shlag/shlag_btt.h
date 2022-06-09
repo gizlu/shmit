@@ -154,9 +154,13 @@ SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
     while((i + blocksize) < inLen && in[i + blocksize] != '=') {
         ++blocksize;
     }
+    // validation
     if(blocksize == 1) return -1; // one byte leftover is impossible in valid b64
     shlag_b64dec_validate((uint8_t*)in + i, blocksize, &status);
     if(status & SHLAG_B64_BAD_CH) return -1;
+    for(int k = i + blocksize + 1; k < inLen; ++k) {
+        if(in[k] != '=') return -1; // after last block, only padding is allowed
+    }
 
     shlag_b64dec_lastblock((uint8_t*)in + i, out + j, blocksize);
     return j + blocksize - 1;
