@@ -167,6 +167,37 @@ void b64decsize_testsuite()
     b64decsize_test(3074457345618258602, 2305843009213693951);
     fputs(SHI_SEP, stderr);
 }
+void b64dec_invalid_test(char* in, int inLen)
+{
+    shi_test("b64_dec(\"%s\")", in);
+    uint8_t* buf = malloc(SHLAG_B64_DECSIZE(inLen));
+    shi_assert_eq(-1, shlag_b64dec(in, inLen, buf), "%lld", int64_t);
+    free(buf);
+    shi_test_end();
+}
+void b64dec_null_ch_test()
+{
+    shi_test("b64_dec(\"a\\0\")");
+    uint8_t* buf = malloc(SHLAG_B64_DECSIZE(2));
+    shi_assert_eq(-1, shlag_b64dec("a\\0", 2, buf), "%lld", int64_t);
+    free(buf);
+    shi_test_end();
+}
+void b64dec_invalid_testsuite()
+{
+    fprintf(stderr, "b64dec with invalid char should report error\n");
+    b64dec_invalid_test("a}", 2);
+    b64dec_invalid_test("a ", 2);
+    b64dec_null_ch_test();
+    b64dec_invalid_test("a\0", 2);
+    fprintf(stderr, "b64dec with invalid lenght should report error\n");
+    b64dec_invalid_test("a", 1);
+    b64dec_invalid_test("aaaaa", 5);
+    fprintf(stderr, "b64dec with padding outside last 4 bytes should report error\n");
+    b64dec_invalid_test("aa=aaa", 6);
+    // b64dec_invalid_test("aa=a"); cases like this aren't handled yet
+    fputs(SHI_SEP, stderr);
+}
 int main()
 {
     enum {OUTPLACE = 0, INPLACE = 1};
@@ -178,5 +209,6 @@ int main()
     b64dec_unpadded_testsuite(INPLACE);
     b64encsize_testsuite();
     b64decsize_testsuite();
+    b64dec_invalid_testsuite();
     return (shi_test_summary() > 0);
 }
