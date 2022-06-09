@@ -128,6 +128,11 @@ static inline void shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8
         out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
     }
 }
+
+// cal size of @out buffer required for decoding @in of lenght @len
+// Note: it may return slightly more than strictly needed (when padding used)
+#define SHLAG_B64_DECSIZE(len) (((int64_t)(len)*3)/4)
+
 // decode @in buffer, of specified lenght into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // On success returns count of written bytes

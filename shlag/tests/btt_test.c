@@ -149,6 +149,24 @@ void b64encsize_testsuite()
     b64encsize_test(6917529027641081853, 9223372036854775805);
     fputs(SHI_SEP, stderr);
 }
+void b64decsize_test(int64_t in, int64_t expected)
+{
+    shi_test("b64decsize(%lld)", in);
+    shi_assert_eq(expected, SHLAG_B64_DECSIZE(in), "%lld", int64_t);
+    shi_test_end();
+}
+void b64decsize_testsuite()
+{
+    fprintf(stderr, "test if b64decsize() returns correct sizes\n");
+    // input 1, 5, 9, 13 is invalid, but we also test it, as it can be passed to b64dec
+    int64_t expected_lookup[] = {0,0,1,2,3,3,4,5,6,6,7,8,9,9,10};
+    for(unsigned i = 0; i<ARRSIZE(expected_lookup); ++i) {
+        b64decsize_test(i, expected_lookup[i]);
+    }
+    // max input not causing overfow
+    b64decsize_test(3074457345618258602, 2305843009213693951);
+    fputs(SHI_SEP, stderr);
+}
 int main()
 {
     enum {OUTPLACE = 0, INPLACE = 1};
@@ -159,5 +177,6 @@ int main()
     b64dec_unpadded_testsuite(OUTPLACE);
     b64dec_unpadded_testsuite(INPLACE);
     b64encsize_testsuite();
+    b64decsize_testsuite();
     return (shi_test_summary() > 0);
 }
