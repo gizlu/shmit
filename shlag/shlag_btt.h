@@ -23,19 +23,13 @@
  extern "C" {
 #endif
 
-// Just arbitrary choosen limit of encoded input size. *enc() and *ENCSIZE() assume that @inSize <= BTT_ENCSIZE_LIMIT
-// Very likely it could be increased but I don't warrant it because:
-// - I'm not sure, and unable to test it (ackshualy I have one retarded hack in mind - mmap on highly compressed fs)
-// - 1TB is more than enough. You gotta be insane to use base64 or base32 for such a big shit
-// I reserve right to change it and not call it API break (just in case having 2138TB RAM becomes the standard or something)
-#define SHLAG_BTT_ENCSIZE_LIMIT (int64_t)1024 * 1024 * 1024 * 1024
-
 // calc buffer size needed for encoding n bytes as base64 with padding (including null terminator)
 #define SHLAG_B64_ENCSIZE(n) ((int64_t)(n) + 2)/3 * 4  + 1
 
 // encode @in buffer, of specified size into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
-// size of @out shall be <= SHLAG_B64_ENCSIZE(inSize)
+// size of @out shall be <= SHLAG_B64_ENCSIZE(inSize). It is assumed that
+// SHLAG_B64_ENCSIZE(inSize) fits in int64_t
 SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
 #ifdef __cplusplus

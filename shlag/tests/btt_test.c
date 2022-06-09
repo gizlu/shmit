@@ -63,7 +63,6 @@ void b64dec_test(TestPair p, bool inplace)
     free(buf);
 }
 
-
 TestPair valid_b64_pairs[] = {
     // RFC 4648 examples
     TEST_PAIR("", ""),
@@ -133,28 +132,21 @@ void b64dec_unpadded_testsuite(bool inplace)
     }
     fputs(SHI_SEP, stderr);
 }
-void b64encsize_test_smallsizes()
+void b64encsize_test(int64_t in, int64_t expected)
 {
-    long long sizelookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
-    for(unsigned i = 0; i<sizeof(sizelookup)/sizeof(sizelookup[0]); ++i) {
-        shi_test("b64encsize(%u)", i);
-        long long result = SHLAG_B64_ENCSIZE(i);
-        shi_assert_eq(sizelookup[i], result, "%lld", long long);
-        shi_test_end();
-    }
-}
-void b64encsize_test_maxsize()
-{
-    shi_test("b64encsize(ENCSIZE_LIMIT)");
-    long long result = SHLAG_B64_ENCSIZE(SHLAG_BTT_ENCSIZE_LIMIT);
-    shi_assert_eq(1466015503705LL, result,  "%lld", long long);
+    shi_test("b64encsize(%lld)", in);
+    shi_assert_eq(expected, SHLAG_B64_ENCSIZE(in), "%lld", int64_t);
     shi_test_end();
 }
 void b64encsize_testsuite()
 {
     fprintf(stderr, "test if b64encsize() returns correct sizes\n");
-    b64encsize_test_smallsizes();
-    b64encsize_test_maxsize();
+    int64_t expected_lookup[] = {1,5,5,5,9,9,9,13,13,13,17,17,17,21};
+    for(unsigned i = 0; i<ARRSIZE(expected_lookup); ++i) {
+        b64encsize_test(i, expected_lookup[i]);
+    }
+    // max input not causing overfow
+    b64encsize_test(6917529027641081853, 9223372036854775805);
     fputs(SHI_SEP, stderr);
 }
 int main()
