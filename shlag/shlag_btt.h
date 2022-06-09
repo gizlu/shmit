@@ -115,12 +115,12 @@ static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
     out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
 }
 
-// decode last block of specified size
+// decode last block of specified size (2,3 or 4)
 static inline void shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8_t blocksize)
 {
-    if(blocksize >= 2) {
+    // if(blocksize >= 2) {  // always true
         out[0] = (shlag_b64dec_lookup[in[0]] << 2) | (shlag_b64dec_lookup[in[1]] >> 4);
-    }
+    // }
     if(blocksize >= 3) {
         out[1] = (shlag_b64dec_lookup[in[1]] << 4) | (shlag_b64dec_lookup[in[2]] >> 2);
     }
