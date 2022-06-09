@@ -32,6 +32,15 @@
 // SHLAG_B64_ENCSIZE(inSize) fits in int64_t
 SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
+// cal size of @out buffer required for decoding @in of lenght @len
+// Note: it may return slightly more than strictly needed (when padding used)
+#define SHLAG_B64_DECSIZE(len) (((int64_t)(len)*3)/4)
+
+// decode @in buffer, of specified lenght into @out buffer.
+// @out and @in may point to same buffer - output will just overwrite input
+// On success returns count of written bytes. On fail returns negative number
+SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out);
+
 #ifdef __cplusplus
  }
 #endif
@@ -114,7 +123,6 @@ static inline void shlag_b64dec_quartet(const uint8_t* in, uint8_t* out)
     out[1] = (shlag_b64dec_lookup[in[1]] << 4) | (shlag_b64dec_lookup[in[2]] >> 2);
     out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
 }
-
 // decode last block of specified size (2,3 or 4)
 static inline void shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8_t blocksize)
 {
@@ -128,15 +136,6 @@ static inline void shlag_b64dec_lastblock(const uint8_t* in, uint8_t* out, uint8
         out[2] = (shlag_b64dec_lookup[in[2]] << 6) | (shlag_b64dec_lookup[in[3]]);
     }
 }
-
-// cal size of @out buffer required for decoding @in of lenght @len
-// Note: it may return slightly more than strictly needed (when padding used)
-#define SHLAG_B64_DECSIZE(len) (((int64_t)(len)*3)/4)
-
-// decode @in buffer, of specified lenght into @out buffer.
-// @out and @in may point to same buffer - output will just overwrite input
-// On success returns count of written bytes
-// On fail returns negative number 
 SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
 {
     if(inLen == 0) return 0;
