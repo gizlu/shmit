@@ -110,9 +110,9 @@ static const uint8_t shlag_b64dec_lookup[256] = {64,64,64,64,64,64,64,64,64,64,6
 // Set SHLAG_B64_PAD_CH bitflag on @status if `=` occured
 // Set SHLAG_B64_INALID_CH bitflag on @status if invalid char occured
 // other bits are arbitrary overwritten
-static inline void shlag_b64dec_validate(const uint8_t* in, int64_t n, uint8_t* status)
+static inline void shlag_b64dec_validate(const uint8_t* in, uint8_t n, uint8_t* status)
 {
-    for(int i = 0; i<n; ++i) {
+    for(uint8_t i = 0; i<n; ++i) {
         *status |= shlag_b64dec_lookup[in[i]];
     }
 }
@@ -157,7 +157,7 @@ SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
     if(blocksize == 1) return -1; // one byte leftover is impossible in valid b64
     shlag_b64dec_validate((uint8_t*)in + i, blocksize, &status);
     if(status & SHLAG_B64_BAD_CH) return -1;
-    for(int k = i + blocksize + 1; k < inLen; ++k) {
+    for(int64_t k = i + blocksize + 1; k < inLen; ++k) {
         if(in[k] != '=') return -1; // after last block, only padding is allowed
     }
 
