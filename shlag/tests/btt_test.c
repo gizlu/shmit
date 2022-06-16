@@ -5,11 +5,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#define SHLAG_BTT_IMPL
-#define SHLAG_BTT_DEF static // optional, but makes smaller exec
 #include "shlag_btt.h"
 #define SHITEST_IMPL
-#define SHITEST_DEF static
+#define SHITEST_DEF static // not needed, used just for presetation
 #include "shitest.h"
 
 typedef struct TestPair
