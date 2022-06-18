@@ -187,11 +187,13 @@ void b64dec_invalid_testsuite()
     b64dec_invalid_test("a}", 2);
     b64dec_invalid_test("a ", 2);
     b64dec_null_ch_test();
-    b64dec_invalid_test("a\0", 2);
     fprintf(stderr, "b64dec with invalid lenght should report error\n");
     b64dec_invalid_test("a", 1);
     b64dec_invalid_test("aaaaa", 5);
     fprintf(stderr, "b64dec with invalid padding should report error\n");
+    b64dec_invalid_test("aa=====", 7);
+    b64dec_invalid_test("aa======", 8);
+    b64dec_invalid_test("aa=======", 9);
     b64dec_invalid_test("aa=aaa", 6);
     b64dec_invalid_test("aa=a", 4);
     b64dec_invalid_test("a=a", 3);
