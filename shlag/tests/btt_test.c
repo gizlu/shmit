@@ -28,18 +28,20 @@ void b64enc_test(TestPair p, bool inplace)
 {
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
-    char* buf = malloc(p.encodedLen + 1);
+    char* buf;
     if(inplace) {
         shi_test("b64enc_inplace(%s)", p.plainStringized);
+        buf = malloc(p.encodedLen + 1);
         memcpy(buf, p.plain, p.plainSize);
         shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
     } else {
         shi_test("b64enc(%s)", p.plainStringized);
+        buf = malloc(p.plainSize);
         shlag_b64enc(p.plain, p.plainSize, buf);
     }
     shi_assert_streq(p.encoded, buf);
-    shi_test_end();
     free(buf);
+    shi_test_end();
 }
 
 void b64dec_test(TestPair p, bool inplace)
