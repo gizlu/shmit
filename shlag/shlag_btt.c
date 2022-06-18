@@ -48,33 +48,28 @@ void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out)
 }
 
 #define B64_MAX_VALID 63 // 0b00111111
-#define B64_BAD_CH 64    // 0b01000000
-#define B64_PAD_CH 128   // 0b10000000
-// INVALID_CH and PAD_CH are bitflags used for input validation
+#define B64_BAD 64    // 0b01000000
+#define B64_PAD 128   // 0b10000000
+// BAD and PAD are bitflags used for input validation
 
 // Lookup table for converting base64 character into 6-bit binary
 // Invalid chars are inited with 64. '=' padding is represented as 128
 // generated with script: https://gist.github.com/gizlu/14c5d930241244b8045f3043f8883d93
 static const uint8_t b64bits[256] = {64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,62,64,64,64,63,52,53,54,55,56,57,58,59,60,61,64,64,64,128,64,64,64,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,64,64,64,64,64,64,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64};
 
-// get "status" of n bytes of input.
-// Set B64_PAD_CH bitflag on @status if `=` occured
-// Set B64_INALID_CH bitflag on @status if invalid char occured
-// other bits are arbitrary overwritten
-static inline void b64dec_status(const uint8_t* in, uint8_t n, uint8_t* status)
-{
-    for(uint8_t i = 0; i<n; ++i) {
-        *status |= b64bits[in[i]];
-    }
-}
 // decode normal block of 4 bytes (result is 3 bytes)
-static inline void b64dec_four(const uint8_t* in, uint8_t* out)
+// Returns "status" - byte that you can check for BAD_CH and PAD_CH bitflags
+static inline uint8_t b64dec_four(const uint8_t* in, uint8_t* out)
 {
-    out[0] = (b64bits[in[0]] << 2) | (b64bits[in[1]] >> 4);
-    out[1] = (b64bits[in[1]] << 4) | (b64bits[in[2]] >> 2);
-    out[2] = (b64bits[in[2]] << 6) | (b64bits[in[3]]);
+    // compiler seem to output less retarded asm with these tmp vars
+    uint8_t a = b64bits[in[0]], b = b64bits[in[1]], c = b64bits[in[2]], d = b64bits[in[3]];
+    out[0] = (a << 2) | (b >> 4);
+    out[1] = (b << 4) | (c >> 2);
+    out[2] = (c << 6) | (d);
+    return a | b | c | d;
 }
-// decode last block of specified size (2,3 or 4)
+
+// decode last block of specified size (2,3 or 4). It doesn't return status
 static inline void b64dec_last(const uint8_t* in, uint8_t* out, uint8_t blocksize)
 {
     // if(blocksize >= 2) {  // always true
@@ -90,26 +85,25 @@ static inline void b64dec_last(const uint8_t* in, uint8_t* out, uint8_t blocksiz
 int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
 {
     if(inLen == 0) return 0;
-    uint8_t status = B64_MAX_VALID;
+    uint8_t status = 0;
     int64_t i = 0, j = 0;
+
     while(i + 4 < inLen) {
-        b64dec_status((uint8_t*)in + i, 4, &status);
-        b64dec_four((uint8_t*)in + i, out + j);
+        status |= b64dec_four((uint8_t*)in + i, out + j);
         i += 4; j += 3;
     }
-    if(status & B64_PAD_CH) return -1; // padding can't occur outside last block
+    if(status & B64_PAD) return -1; // padding can't occur outside last block
 
     // last block is decoded differently (cause its size varies, and it may use padding)
     int64_t blocksize = 0;
-    while((i + blocksize) < inLen && in[i + blocksize] != '=') {
-        ++blocksize;
+    for(; i+blocksize < inLen; ++blocksize) {
+        status |= b64bits[(uint8_t)in[i+blocksize]];
+        if(status & B64_PAD) break;
     }
-    // validation
+    if(status & B64_BAD) return -1;
     if(blocksize == 1) return -1; // one byte leftover is impossible in valid b64
-    b64dec_status((uint8_t*)in + i, blocksize, &status);
-    if(status & B64_BAD_CH) return -1;
     for(int64_t k = i + blocksize + 1; k < inLen; ++k) {
-        if(in[k] != '=') return -1; // after last block, only padding is allowed
+        if(in[k] != '=') return -1; /* only padding is legal after last block */
     }
 
     b64dec_last((uint8_t*)in + i, out + j, blocksize);
