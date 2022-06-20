@@ -11,7 +11,7 @@ shit that don't deserve separate repos
 | File           | Description |
 |----------------|-------------|
 |[**shitest.h**](shlag/shitest.h) | Minimalistic single header testing library written due to my discontent with fullblown frameworks like gtest. TODO: stabilize API/ABI, maybe write script converting output to TAP format |
-|[**shlag_btt**](shlag/shlag_btt.h) | Single header lib implementation of binary to text encodings such as base64. It supports in-place enc/dec, so you don't have to allocate separate buffer. Currently only base64 is implemented (TODO: other formats like b32, examples and stabilizing API/ABI - it is not stable yet). |
+|[**shlag_btt**](shlag/shlag_btt.h) | Binary to text encodings such as base64. It supports in-place enc/dec, so you don't have to allocate separate buffer. Currently only base64 is implemented (TODO: other formats like b32, examples and stabilizing API/ABI - it is not stable yet). |
 |[**shlag_pcg**](shlag/shlag_pcg.h) | 32 bit [pcg pseudorandom generator](https://www.pcg-random.org/) wrapped in single header C/C++ library along [fast, unbiased algorithm](https://lemire.me/blog/2016/06/30/fast-random-shuffling/) for reducting numbers to specified range. I just combined [lemire](https://github.com/lemire) and [imneme](https://github.com/imneme) work into convenient form and wrote some docs. Changes that I introduced, are very trivial. MIT licensed. API and ABI should be stable |
 
 
