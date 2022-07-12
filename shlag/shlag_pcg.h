@@ -54,9 +54,9 @@ SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint6
 
 // gen random u32
 SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng); 
-// gen random u32 in range <0, @end). @bound shall not be 0
+// gen random u32 in range <0, @end). If @end==0, return 0.
 SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange0(shlag_pcg32* rng, uint32_t end);
-// gen random u32 in range <@begin, @end). @end shall be greater than @begin
+// gen random u32 in range <@begin, @end). If @begin==@end, return that number
 SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t begin, uint32_t end);
 
 #ifdef __cplusplus
@@ -98,7 +98,6 @@ SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
 }
 
 SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange0(shlag_pcg32* rng, uint32_t end) {
-    SHLAG_PCG_ASSERT(end > 0);
     uint64_t random32bit, multiresult;
     uint32_t leftover;
     uint32_t threshold;
@@ -118,7 +117,6 @@ SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange0(shlag_pcg32* rng, uint32_t end) {
 
 SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t begin, uint32_t end)
 {
-    SHLAG_PCG_ASSERT(end > begin);
     const uint32_t rangesize = end-begin;
     return begin + shlag_pcg32_randrange0(rng, rangesize);
 }
