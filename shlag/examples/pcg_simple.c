@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     fprintf(stderr, "prng initstate: %llu, prng initseq: %llu\n",
             (unsigned long long)initstate, (unsigned long long)initseq); 
     // %llu support >= 64 bits so it is safe to cast from uint64
+    
+
 
     uint32_t count = strtoul(argv[1], NULL, 10);
     uint32_t min = strtoul(argv[2], NULL, 10);
@@ -48,5 +50,18 @@ int main(int argc, char** argv)
         printf("%lu ", (unsigned long)shlag_pcg32_randrange(&rng, min, max));
         // ulong support >= 32 bits so it is safe to cast from uint32
     }
+
+    // randrange0(0) always returns 0
+    if(shlag_pcg32_randrange0(&rng, 0) != 0) exit(1);
+    if(shlag_pcg32_randrange0(&rng, 0) != 0) exit(1);
+    // randrange(x,x) always returns x
+    if(shlag_pcg32_randrange(&rng, 0, 0) != 0) exit(1);
+    if(shlag_pcg32_randrange(&rng, 1, 1) != 1) exit(1);
+    if(shlag_pcg32_randrange(&rng, 5, 5) != 5) exit(1);
+    // randrange(x,x+1) always returns x
+    if(shlag_pcg32_randrange(&rng, 0, 1) != 0) exit(1);
+    if(shlag_pcg32_randrange(&rng, 1, 2) != 1) exit(1);
+    if(shlag_pcg32_randrange(&rng, 5, 6) != 5) exit(1);
+
     putchar('\n');
 }
