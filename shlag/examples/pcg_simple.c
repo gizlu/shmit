@@ -14,8 +14,9 @@ int main(int argc, char** argv)
 {
     if(argc != 4 && argc != 6) {
         if(argc == 0) exit(1); // someone is screwing with us
-        fprintf(stderr, "Usage: %s count min max\n", argv[0]);
-        fprintf(stderr, "Usage: %s count min max initstate initseq\n", argv[0]);
+        fprintf(stderr, "Usage: %s count begin end\n", argv[0]);
+        fprintf(stderr, "Usage: %s count begin end initstate initseq\n", argv[0]);
+        fprintf(stderr, "generated numbers are in range <begin, end)\n");
         exit(1);
     }
     shlag_pcg32 rng;

@@ -54,10 +54,10 @@ SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint6
 
 // gen random u32
 SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng); 
-// gen random u32 in range <0, @bound). Right side exclusive. @bound shall not be 0
-SHLAG_PCG_DEF uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound);
-// gen random u32 in range <@min, @max>. Both sides inclusive. @max shall be greater than @min
-SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max);
+// gen random u32 in range <0, @end). @bound shall not be 0
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange0(shlag_pcg32* rng, uint32_t end);
+// gen random u32 in range <@begin, @end). @end shall be greater than @begin
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t begin, uint32_t end);
 
 #ifdef __cplusplus
  }
@@ -97,30 +97,30 @@ SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-SHLAG_PCG_DEF uint32_t shlag_pcg32_randbound(shlag_pcg32* rng, uint32_t bound) {
-    SHLAG_PCG_ASSERT(bound > 0);
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange0(shlag_pcg32* rng, uint32_t end) {
+    SHLAG_PCG_ASSERT(end > 0);
     uint64_t random32bit, multiresult;
     uint32_t leftover;
     uint32_t threshold;
     random32bit = shlag_pcg32_rand(rng);
-    multiresult = random32bit * bound;
+    multiresult = random32bit * end;
     leftover = (uint32_t) multiresult;
-    if(leftover < bound ) {
-        threshold = -bound % bound ;
+    if(leftover < end ) {
+        threshold = -end % end ;
         while (leftover < threshold) {
             random32bit = shlag_pcg32_rand(rng);
-            multiresult = random32bit * bound;
+            multiresult = random32bit * end;
             leftover = (uint32_t) multiresult;
         }
     }
-    return multiresult >> 32; // <0, bound)
+    return multiresult >> 32; // <0, end)
 }
 
-SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t min, uint32_t max) 
+SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t begin, uint32_t end)
 {
-    SHLAG_PCG_ASSERT(max > min);
-    const uint32_t rangesize = max-min+1;
-    return min + shlag_pcg32_randbound(rng, rangesize);
+    SHLAG_PCG_ASSERT(end > begin);
+    const uint32_t rangesize = end-begin;
+    return begin + shlag_pcg32_randrange0(rng, rangesize);
 }
 
 #endif // SHLAG_PCG_IMPL
