@@ -9,11 +9,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
+
+// noop if true, abort if false.
+// It is ignored from test coverage repors
+void assert_true(bool cond) {
+    if(!cond) exit(1); // GCOV_EXCL_LINE
+}
 
 int main(int argc, char** argv)
 {
     if(argc != 4 && argc != 6) {
-        if(argc == 0) exit(1); // someone is screwing with us
+        assert_true(argc != 0); // someone is screwing with us if not
         fprintf(stderr, "Usage: %s count begin end\n", argv[0]);
         fprintf(stderr, "Usage: %s count begin end initstate initseq\n", argv[0]);
         fprintf(stderr, "generated numbers are in range <begin, end)\n");
@@ -52,16 +59,16 @@ int main(int argc, char** argv)
     }
 
     // randrange0(0) always returns 0
-    if(shlag_pcg32_randrange0(&rng, 0) != 0) exit(1);
-    if(shlag_pcg32_randrange0(&rng, 0) != 0) exit(1);
+    assert_true(shlag_pcg32_randrange0(&rng, 0) == 0);
+    assert_true(shlag_pcg32_randrange0(&rng, 0) == 0);
     // randrange(x,x) always returns x
-    if(shlag_pcg32_randrange(&rng, 0, 0) != 0) exit(1);
-    if(shlag_pcg32_randrange(&rng, 1, 1) != 1) exit(1);
-    if(shlag_pcg32_randrange(&rng, 5, 5) != 5) exit(1);
+    assert_true(shlag_pcg32_randrange(&rng, 0, 0) == 0);
+    assert_true(shlag_pcg32_randrange(&rng, 1, 1) == 1);
+    assert_true(shlag_pcg32_randrange(&rng, 5, 5) == 5);
     // randrange(x,x+1) always returns x
-    if(shlag_pcg32_randrange(&rng, 0, 1) != 0) exit(1);
-    if(shlag_pcg32_randrange(&rng, 1, 2) != 1) exit(1);
-    if(shlag_pcg32_randrange(&rng, 5, 6) != 5) exit(1);
+    assert_true(shlag_pcg32_randrange(&rng, 0, 1) == 0);
+    assert_true(shlag_pcg32_randrange(&rng, 1, 2) == 1);
+    assert_true(shlag_pcg32_randrange(&rng, 5, 6) == 5);
 
     putchar('\n');
 }
