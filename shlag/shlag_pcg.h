@@ -68,17 +68,6 @@ SHLAG_PCG_DEF uint32_t shlag_pcg32_randrange(shlag_pcg32* rng, uint32_t begin, u
 
 #ifdef SHLAG_PCG_IMPL
 
-// you may define SHLAG_PCG_ASSERT(x) yourself for customization
-#if defined(SHLAG_PCG_DEBUG) && !defined(SHLAG_PCG_ASSERT) 
- #include <assert.h>
- void shlag_pcg_assert_func(int x) {
-     assert(x); // GCOV_EXCL_LINE
- }
- #define SHLAG_PCG_ASSERT(x)  shlag_pcg_assert_func((x))
-#elif !defined(SHLAG_PCG_DEBUG)
- #define SHLAG_PCG_ASSERT(x) do {} while(0)
-#endif
-
 SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint64_t initseq)
 {
     rng->state = 0U;
@@ -86,7 +75,6 @@ SHLAG_PCG_DEF void shlag_pcg32_srand(shlag_pcg32* rng, uint64_t initstate, uint6
     shlag_pcg32_rand(rng);
     rng->state += initstate;
     shlag_pcg32_rand(rng);
-    SHLAG_PCG_ASSERT((rng->inc % 2) == 1); // inc must be odd
 }
 
 SHLAG_PCG_DEF uint32_t shlag_pcg32_rand(shlag_pcg32* rng) {
