@@ -11,9 +11,13 @@ test('run btt_test', btt_test)
 # poor tests, but could find crash, infinite loop or something
 test('run shitest_example (should fail)', shitest_example, should_fail: true)
 
-max_uint32='4294967295'
-args = ['5000', '9898989', max_uint32] # [count, min, max]
-test('run pcg_example without specified seed', pcg_example, args : args)
-args += ['2137', '2138'] # [seed1, seed2] 
-test('run pcg_example with specified seed', pcg_example, args : args)
 test('run pcg_example without args (should fail)', pcg_example, should_fail: true)
+
+args = ['5000', '0', '1'] # [count, begin, end]
+test('run pcg_example with small range', pcg_example, args : args)
+
+args = ['5000', '9898989', '4294967295'] # [count, begin, end]
+test('run pcg_example with big range', pcg_example, args : args)
+
+args = ['5000', '9898989', '4294967295', '2137', '2138'] # [count, begin, end, seed1, seed2]
+test('run pcg_example with big nums and specified seed', pcg_example, args : args)
