@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# Do screenshoot of selected area/current window/fullscreen.
-# Copy it to clipboard and save on disk with current time as filename
-# License: gizlu 2021, Do what the fuck you want, just dont blame me for anything
-# Dependencies: maim, xclip
+# Do screenshot and save it on disk with cur time as filename
+# License: Public Domain. Dependencies: maim, xclip
 
 filename=~/Pictures/screeny/$(date +%F-%T).png
 
