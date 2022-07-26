@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# script for converting tabular data into markdown syntax
+# NOTE: it works only if your fields do not nest whitespaces
+# TODO: Allow for specifining cust input field separator
+
+# swallow current field sep, and surround each field with space and pipe
+pipize() {
+    awk -v OFS=" | " '{ $1=$1; printf "| %s |\n", $0 }'
+}
+columnize() {
+    column -t -s "|" -o "|"
+}
+# insert delim row (like |---|-|--|) beetween header and body
+head_delim() {
+    awk '{print} NR==1{gsub(/[^|]/, "-", $0); print}'
+}
+
+pipize <"$1" | columnize | head_delim
