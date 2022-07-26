@@ -16,4 +16,4 @@ head_delim() {
     awk '{print} NR==1{gsub(/[^|]/, "-", $0); print}'
 }
 
-pipize <"$1" | columnize | head_delim
+pipize <&0 | columnize | head_delim
