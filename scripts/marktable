@@ -3,16 +3,18 @@
 # Script for converting tabular data into markdown syntax. Examples:
 
 usage() {
-  printf 'Usage:\n%s [options] < file\n' "$0" >&2
-  printf 'Options:\n'
-  printf ' -F awk-field-sep-string:\n'
-  printf '   Set input field delim (awk syntax). Default: any run of whitespaces\n'
-  printf 'Example:\n'
-  printf ' $ printf "foo bar foobar\\naa bb c\\n" | marktable\n'
-  printf '  | foo | bar | foobar |\n'
-  printf '  |-----|-----|--------|\n'
-  printf '  | aa  | bb  | c      |\n'
-  exit 1
+ printf 'Usage:
+ %s [options] < file
+Options
+ -F awk-field-sep-string:
+   Set input field delim (awk syntax). Default: any run of whitespaces
+Example:
+ $ printf "foo bar foobar\\naa bb c\\n" | marktable
+  | foo | bar | foobar |
+  |-----|-----|--------|
+  | aa  | bb  | c      |
+' "$0" >&2
+ exit 1
 }
 
 # swallow field sep (first arg), and surround each field with space and pipe
