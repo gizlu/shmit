@@ -1,16 +1,18 @@
 #!/bin/sh
 
-# script for converting tabular data into markdown syntax
-# NOTE: it works only if your fields do not nest whitespaces
-# TODO: Allow for specifining cust input field separator
+# Script for converting tabular data into markdown syntax
 
 usage() {
-  printf 'Usage:\n%s < file\n... | %s\n' "$0" "$0" >&2
+  printf 'Usage:\n%s [options] < file\n' "$0" >&2
+  printf 'Options:\n'
+  printf ' -F awk-field-sep-string:\n'
+  printf '   Set input field delim (awk syntax). Default: any run of whitespaces\n'
   exit 1
 }
-# swallow current field sep, and surround each field with space and pipe
+
+# swallow field sep (first arg), and surround each field with space and pipe
 pipize() {
-    awk -v OFS=" | " '{ $1=$1; printf "| %s |\n", $0 }'
+    awk -F "$1" -v OFS=" | " '{ $1=$1; printf "| %s |\n", $0 }'
 }
 columnize() {
     column -t -s "|" -o "|"
@@ -20,6 +22,11 @@ head_delim() {
     awk '{print} NR==1{gsub(/[^|]/, "-", $0); print}'
 }
 
-if [ "$#" -ne 0 ]; then usage; fi
+if [ "$1" = '-F' ] && [ "$#" -eq 2 ]; then
+    sep="$2"
+else
+    [ "$#" -eq 0 ] || usage
+    sep='[ \t\n]+'
+fi
 
-pipize <&0 | columnize | head_delim
+pipize "$sep" <&0 | columnize | head_delim
