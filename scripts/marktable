@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Script for converting tabular data into markdown syntax. Examples:
+# Script for converting tabular data into markdown syntax. Public Domain
 
 usage() {
  printf 'Usage:
