@@ -11,10 +11,10 @@ usage()
 
 if [ "$1" = '--with-argc' ]; then
     [ "$#" -lt 2 ] && usage
-    shift; printf 'int _argc = %d;\n' "$#"
+    shift; printf 'int myargc = %d;\n' "$#"
 fi
 
-printf 'char** _argv = {'
+printf 'char** myargv = {'
 while [ $# -gt 1 ]; do
   printf '"%s", ' "$1"
   shift
