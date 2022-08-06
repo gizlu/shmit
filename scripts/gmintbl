@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Minify google's benchmark output (print just bench names and realtime) suplied to stdin.
+# Optinaly, you can pass alternative header for time column (e.g. compiler name)
+#
+# You can use it to generate pretty table with results of two compilers:
+# ./gcc_bench | gbtbl gcc > out
+# ./clang_bench | gbtbl clang | join out | column -t
+
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+    printf 'Usage: ./bench gbtbl | [time-col-title]\n'; exit 1;
+fi
+
+[ -z "$1" ] && title='time' || title="$1"
+awk -v title="$title" 'NR==1 { print "bench", title;} NR > 3 { print $1, $2 "" $3; }' <&0
