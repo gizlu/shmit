@@ -1,5 +1,6 @@
 #!/bin/sh
 # script for printing argv as c array. Inspired by ImgToC.c. License: Public Domain
+# NOTE: It does not escape chars like double quotes
 
 usage()
 {
