@@ -1,6 +1,11 @@
 #!/bin/sh
 
 # Script for converting tabular data into markdown syntax. Public Domain
+# Example:
+# $ printf "foo bar foobar\\naa bb c\\n" | marktable
+#  | foo | bar | foobar |
+#  |-----|-----|--------|
+#  | aa  | bb  | c      |
 
 usage() {
  printf 'Usage:
@@ -8,11 +13,6 @@ usage() {
 Options
  -F awk-field-sep-string:
    Set input field delim (awk syntax). Default: any run of whitespaces
-Example:
- $ printf "foo bar foobar\\naa bb c\\n" | marktable
-  | foo | bar | foobar |
-  |-----|-----|--------|
-  | aa  | bb  | c      |
 ' "$0" >&2
  exit 1
 }
