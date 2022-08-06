@@ -8,7 +8,7 @@
 # ./clang_bench | gbtbl clang | join out | column -t
 
 if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
-    printf 'Usage: ./bench gbtbl | [time-col-title]\n'; exit 1;
+    printf 'Usage: ./bench | gbtbl [time-col-title]\n'; exit 1;
 fi
 
 [ -z "$1" ] && title='time' || title="$1"
