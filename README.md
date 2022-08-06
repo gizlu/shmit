@@ -7,7 +7,7 @@ shit that don't deserve separate repos
 | [**scripts/argvtoc**](scripts/argvtoc) | shellscript for printing argv as c array. Useful for debugging and calling exec\*() by hand. **Public domain**|
 | [**scripts/screenshot**](scripts/screenshot) | shellscript for doing screenshots on x11 and saving them in clipoard and disk. **Public domain**|
 | [**scripts/marktable**](scripts/marktable) | shellscript for converting tabular data into markdown syntax. **Public domain** |
-| [**scripts/gmintbl**](scripts/gmintbl) | shellscript for minifing google benchmark output |
+| [**scripts/gmintbl**](scripts/gmintbl) | shellscript for minifing google benchmark output. **Public domain** |
 
 ## shlag - single/two file libs libs that don't deserve separate repos[^1]
 | File           | Description |
