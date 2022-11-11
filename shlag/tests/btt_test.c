@@ -56,15 +56,14 @@ TestPair valid_b64_pairs[] = {
 
 void b64enc_test(TestPair p, bool inplace)
 {
+    shi_test("b64enc(%s)", p.plainStringized);
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
     char* buf = malloc(p.encodedLen + 1);
     if(inplace) {
-        shi_test("b64enc_inplace(%s)", p.plainStringized);
         memcpy(buf, p.plain, p.plainSize);
         shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
     } else {
-        shi_test("b64enc(%s)", p.plainStringized);
         shlag_b64enc(p.plain, p.plainSize, buf);
     }
     shi_assert_streq(p.encoded, buf);
@@ -74,8 +73,7 @@ void b64enc_test(TestPair p, bool inplace)
 
 void b64enc_testsuite(bool inplace)
 {
-    fprintf(stderr, "test b64enc %s\n",
-            inplace ? "into same buffer (inplace)" : "into external buffer");
+    fprintf(stderr, "test %s b64enc\n", inplace ? "inplace" : "outplace");
     for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
         b64enc_test(valid_b64_pairs[i], inplace);
     }
@@ -103,15 +101,14 @@ void b64encsize_testsuite()
 
 void b64dec_test(TestPair p, bool inplace)
 {
+    shi_test("b64dec(\"%s\")", p.encoded);
     uint8_t* buf;
     int64_t outsize;
     if(inplace) {
-        shi_test("b64dec_inplace(\"%s\")", p.encoded);
         buf = malloc(p.encodedLen+1);
         memcpy(buf, p.encoded, p.encodedLen+1);
         outsize = shlag_b64dec((char*)buf, p.encodedLen, buf);
     } else {
-        shi_test("b64dec(\"%s\")", p.encoded);
         buf = malloc(p.plainSize);
         outsize = shlag_b64dec(p.encoded, p.encodedLen, buf);
     }
@@ -124,8 +121,8 @@ void b64dec_test(TestPair p, bool inplace)
 
 void b64dec_padded_testsuite(bool inplace)
 {
-    fprintf(stderr, "test b64dec %s, with valid, padded data\n",
-            inplace ? "into same buffer (inplace)" : "into external buffer");
+    fprintf(stderr, "test %s b64dec with valid padded data\n", 
+            inplace ? "inplace" : "outplace");
     for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
         b64dec_test(valid_b64_pairs[i], inplace);
     }
@@ -144,7 +141,8 @@ char* unpad(char* in, int64_t inLen, int64_t* outLen)
 }
 void b64dec_unpadded_testsuite(bool inplace)
 {
-    fprintf(stderr, "b64dec%s with valid, unpadded data\n", inplace ? " inplace" : "");
+    fprintf(stderr, "test %s b64dec with valid unpadded data\n",
+            inplace ? "inplace" : "outplace");
     for(unsigned i = 0; i<ARRSIZE(valid_b64_pairs); ++i) {
         TestPair p = valid_b64_pairs[i];
         p.encoded = unpad(p.encoded, p.encodedLen, &p.encodedLen);
@@ -173,7 +171,7 @@ void b64decsize_testsuite()
 }
 void b64dec_invalid_test(char* in, int inLen)
 {
-    shi_test("b64_dec(\"%s\")", in);
+    shi_test("b64dec(\"%s\")", in);
     uint8_t* buf = malloc(SHLAG_B64_DECSIZE(inLen));
     shi_assert_eq(-1, shlag_b64dec(in, inLen, buf), "%lld", int64_t);
     free(buf);
@@ -189,14 +187,14 @@ void b64dec_null_ch_test()
 }
 void b64dec_invalid_testsuite()
 {
-    fprintf(stderr, "b64dec with invalid char should report error\n");
+    fprintf(stderr, "test if b64dec reports error on invalid char\n");
     b64dec_invalid_test("a}", 2);
     b64dec_invalid_test("a ", 2);
     b64dec_null_ch_test();
-    fprintf(stderr, "b64dec with invalid lenght should report error\n");
+    fprintf(stderr, "test if b64dec reports error on invalid lenght\n");
     b64dec_invalid_test("a", 1);
     b64dec_invalid_test("aaaaa", 5);
-    fprintf(stderr, "b64dec with invalid padding should report error\n");
+    fprintf(stderr, "test if b64dec reports error on invalid padding\n");
     b64dec_invalid_test("aa=====", 7);
     b64dec_invalid_test("aa======", 8);
     b64dec_invalid_test("aa=======", 9);
