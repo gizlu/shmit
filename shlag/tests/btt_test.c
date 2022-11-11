@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#define SHLAG_BTT_IMPL
+#define SHLAG_BTT_DEF static // not needed, used just for presetation
 #include "shlag_btt.h"
 #define SHITEST_IMPL
 #define SHITEST_DEF static // not needed, used just for presetation
