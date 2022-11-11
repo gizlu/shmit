@@ -1,13 +1,12 @@
 // Compile it with something like:
-// cc -I. tests/btt_test.c -o bin/btt_test
-// TODO: add makefile or something
+// cc -I. tests/b64test.c -o bin/b64test
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#define SHLAG_BTT_IMPL
-#define SHLAG_BTT_DEF static // not needed, used just for presetation
-#include "shlag_btt.h"
+#define SHLAG_B64_IMPL
+#define SHLAG_B64_DEF static // not needed, used just for presetation
+#include "shlag_b64.h"
 #define SHITEST_IMPL
 #define SHITEST_DEF static // not needed, used just for presetation
 #include "shitest.h"

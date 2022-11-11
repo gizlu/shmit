@@ -4,22 +4,22 @@
  * no need for another buffer). I haven't yet seen C lib able to do that.
  * Inspired by: https://github.com/dotnet/corefxlab/pull/834/files
  *
- * used namespaces: shlag_b64, SHLAG_B64, SHLAG_BTT
+ * used namespaces: shlag_b64, SHLAG_B64
  *
- * In *one* of C or C++ file, you have to define SHLAG_BTT_IMPL before including
+ * In *one* of C or C++ file, you have to define SHLAG_B64_IMPL before including
  * shlag_btt.h. See `shlag/tests/shlag_btt.c` 
  */
-#ifndef SHLAG_BTT_H
-#define SHLAG_BTT_H
+
+#ifndef SHLAG_B64_H
+#define SHLAG_B64_H
 
 #include <stdint.h>
 
 // Prepend public function definitions with whatever you want. You can use it
 // for example to make functions static. By default it does nothing
-#ifndef SHLAG_BTT_DEF
- #define SHLAG_BTT_DEF
+#ifndef SHLAG_B64_DEF
+ #define SHLAG_B64_DEF
 #endif
-
 
 #ifdef __cplusplus
  extern "C" {
@@ -32,7 +32,7 @@
 // @out and @in may point to same buffer - output will just overwrite input
 // size of @out shall be >= SHLAG_B64_ENCSIZE(inSize). It is assumed that
 // SHLAG_B64_ENCSIZE(inSize) fits in int64_t
-SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
+SHLAG_B64_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
 // cal size of @out buffer required for decoding @in of lenght @len
 // Note: it may return slightly more than strictly needed (when padding used)
@@ -41,16 +41,16 @@ SHLAG_BTT_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 // decode @in buffer, of specified lenght into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // On success returns count of written bytes. On fail returns negative number
-SHLAG_BTT_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out);
+SHLAG_B64_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out);
 
 #ifdef __cplusplus
  }
 #endif
-#endif // SHLAG_BTT_H
+#endif // SHLAG_B64_H
 
 // private stuff
 
-#ifdef SHLAG_BTT_IMPL
+#ifdef SHLAG_B64_IMPL
 // lookup table for converting six-bit binary into base64 character
 static const char* shlag_b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -160,4 +160,4 @@ int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out)
     shlag_b64dec_last((uint8_t*)in + i, out + j, blocksize);
     return j + blocksize - 1;
 }
-#endif // SHLAG_BTT_IMPL
+#endif // SHLAG_B64_IMPL

@@ -13,7 +13,7 @@ shit that don't deserve separate repos
 | File           | Description |
 |----------------|-------------|
 |[**shitest.h**](shlag/shitest.h) | Minimal unittesting lib. Written due to my discontent with fullblown frameworks like gtest. **UNSTABLE** |
-|[**shlag_btt.h**](shlag/shlag_btt.h) |  Binary to text encodings such as base64 with support for inplace enc/dec. **UNSTABLE** |
+|[**shlag_b64.h**](shlag/shlag_b64.h) | base64 implementation with support for inplace enc/dec. **UNSTABLE** |
 |[**shlag_pcg.h**](shlag/shlag_pcg.h) | 32 bit [pcg prng](https://www.pcg-random.org/) wrapped in single header lib along [fast, unbiased algo](https://lemire.me/blog/2016/06/30/fast-random-shuffling/) for randrange(). **STABLE, MIT Licensed** |
 
 There are examples in `shlag/examples/` and tests in `shlag/tests/`
