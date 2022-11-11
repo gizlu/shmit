@@ -59,15 +59,17 @@ void b64enc_test(TestPair p, bool inplace)
     shi_test("b64enc(%s)", p.plainStringized);
     // We don't use one big buffer for all tests despite we can, because it
     // it could potentialy hide OOB bugs from sanitizer
-    char* buf = malloc(p.encodedLen + 1);
+    uint8_t* in;
+    char* out = malloc(p.encodedLen + 1);
     if(inplace) {
-        memcpy(buf, p.plain, p.plainSize);
-        shlag_b64enc((uint8_t*)buf, p.plainSize, buf);
+        in = (uint8_t*)out;
+        memcpy(in, p.plain, p.plainSize);
     } else {
-        shlag_b64enc(p.plain, p.plainSize, buf);
+        in = p.plain;
     }
-    shi_assert_streq(p.encoded, buf);
-    free(buf);
+    shlag_b64enc(in, p.plainSize, out);
+    shi_assert_streq(p.encoded, out);
+    free(out);
     shi_test_end();
 }
 
@@ -99,24 +101,31 @@ void b64encsize_testsuite()
     fputs(SHI_SEP, stderr);
 }
 
+void* memdup(void* src, size_t n)
+{
+    void* ptr = malloc(n);
+    memcpy(ptr, src, n);
+    return ptr;
+}
+
 void b64dec_test(TestPair p, bool inplace)
 {
     shi_test("b64dec(\"%s\")", p.encoded);
-    uint8_t* buf;
+    char* in; uint8_t* out;
     int64_t outsize;
     if(inplace) {
-        buf = malloc(p.encodedLen+1);
-        memcpy(buf, p.encoded, p.encodedLen+1);
-        outsize = shlag_b64dec((char*)buf, p.encodedLen, buf);
+        in = memdup(p.encoded, p.encodedLen+1);
+        out = (uint8_t*)in;
     } else {
-        buf = malloc(p.plainSize);
-        outsize = shlag_b64dec(p.encoded, p.encodedLen, buf);
+        in = p.encoded;
+        out = malloc(p.plainSize);
     }
+    outsize = shlag_b64dec(in, p.encodedLen, out);
     shi_assert_f(p.plainSize == outsize, 
             "expected_size: %lld, actual_size: %lld", p.plainSize, outsize);
-    shi_assert_memeq_f(p.plain, buf, p.plainSize, "result != %s", p.plainStringized);
+    shi_assert_memeq_f(p.plain, out, p.plainSize, "out != %s", p.plainStringized);
     shi_test_end();
-    free(buf);
+    free(out);
 }
 
 void b64dec_padded_testsuite(bool inplace)
@@ -134,8 +143,7 @@ char* unpad(char* in, int64_t inLen, int64_t* outLen)
 {
     char* padStart = strchr(in, '=');
     *outLen = (padStart == NULL) ? inLen : padStart - in;
-    char* out = malloc(*outLen+1);
-    memcpy(out, in, *outLen);
+    char* out = memdup(in, *outLen+1);
     out[*outLen] = '\0';
     return out;
 }
