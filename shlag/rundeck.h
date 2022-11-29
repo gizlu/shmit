@@ -104,41 +104,24 @@ bool rundeck_fact_from_str(const char factionStr[3], uint8_t* factIdOut)
     return false;
 }
 
+#define RUNDECK_SWAP(type,x,y) do {type tmp=x; x=y; y=tmp;} while(0)
 
-// helper func for rundeck_entry_sortcb()
-// sort entries in asc order by set, then faction, then card id
-static int rundeck_entry_sortcb2(const RundeckEntry* e1, const RundeckEntry* e2)
+// helper for contrived_decksort
+static int rundeck_entry_cmp(RundeckEntry e1, RundeckEntry e2)
 {
-    if (e1->setId > e2->setId) return 1;
-    if (e1->setId < e2->setId) return -1;
-    if (e1->factId > e2->factId) return 1;
-    if (e1->factId < e2->factId) return -1;
-    if (e1->cardId > e2->cardId) return 1;
-    if (e1->cardId < e2->cardId) return -1;
-    return 0;
+    if(e1.count == e2.count) return (e1.setId >= e2.setId && e1.factId >= e2.factId && e1.cardId > e2.cardId);
+    if(e1.count <= 3 && e2.count <= 3) return e1.count < e2.count;
+    return e1.count > e2.count;
 }
 
-// calllback for qsort for grouping/sorting entries in this (ridiculus) way:
-// - first go entries with <= 3 copies.
-//    Internally they are sorted *desc* by count, then *asc* by set, faction and id
-// - then go entries with  < 3 copies.
-//    Internally they are sorted *asc* by set, faction and card id
-static int rundeck_entry_sortcb(const void* v1, const void* v2) {
-    const RundeckEntry* card1 = v1;
-    const RundeckEntry* card2 = v2;
-    if (card1->count <= 3 && card2->count <= 3) {
-        if (card1->count < card2->count) return 1;
-        if (card1->count > card2->count) return -1;
-        return rundeck_entry_sortcb2(card1, card2);
-    }
-    if (card1->count > 3 && card2->count > 3) return rundeck_entry_sortcb2(card1, card2);
-    if (card1->count <= 3) return -1; /* only first card have <= 3 copies */
-    else return 1; /* only second card have <= 3 copies */
-}
-
+// sort entries into two groups:
+// - first go entries with <= 3 copies (internally sorted *desc* by count, then *asc* by set, faction and id)
+// - then go entries with < 3 copies (internally sorted *asc* by count, set, faction and id)
 void rundeck_contrived_decksort(RundeckEntry* deck, uint8_t deckSize)
 {
-    qsort(deck, deckSize, sizeof(RundeckEntry), rundeck_entry_sortcb);
+    for(int i = 1; i < deckSize; ++i)
+        for(int j = i; j > 0 && rundeck_entry_cmp(deck[j-1], deck[j]); --j)
+            RUNDECK_SWAP(RundeckEntry, deck[j-1], deck[j]);
 }
 
 typedef struct RundeckGroup {
@@ -152,14 +135,12 @@ typedef struct RundeckGroups {
     uint8_t lenSum; // sum of cards in groups
 } RundeckGroups;
 
-// callback for sorting groups by len in asc order
-int rundeck_group_sort_cb(const void* group1v, const void* group2v)
+// sort groups by len in asc order
+void rundeck_group_sort(RundeckGroups* groups)
 {
-    const RundeckGroup* g1 = group1v;
-    const RundeckGroup* g2 = group2v;
-    if(g1->len > g2->len) return 1;
-    if(g1->len < g2->len) return -1;
-    return 0;
+    for(int i = 1; i < groups->count; ++i)
+        for(int j = i; j > 0 && groups->arr[j-1].len > groups->arr[j].len; --j)
+            RUNDECK_SWAP(RundeckGroup, groups->arr[j-1], groups->arr[j]);
 }
 
 typedef struct RundeckState {
@@ -234,7 +215,7 @@ void rundeck_encode_normals(RundeckState* s, uint8_t n)
 {
     assert(n <= 3);
     RundeckGroups groups = rundeck_extract_set_fact_groups(s, n);
-    qsort(groups.arr,  groups.count, sizeof(RundeckGroup), rundeck_group_sort_cb);
+    rundeck_group_sort(&groups);
 
     rundeck_encode_varint(s, groups.count); // how many set/faction combinations
     for(uint8_t i = 0; i < groups.count; ++i) {
