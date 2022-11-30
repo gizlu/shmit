@@ -29,3 +29,9 @@ executables will be outputed into build/ dir
 
 For quick check you can use `meson test -C build` which will run some tests
 and examples. NOTE: output is way less verbose than when running them by hand
+
+#### TODO notes:
+- shitest: consider reporing in which line/file failed assert lies.
+- reconsider wheter it is neccessary to include input validation in base64
+- implement base32
+- polish rundeck
