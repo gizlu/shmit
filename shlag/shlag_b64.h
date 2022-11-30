@@ -1,7 +1,7 @@
-/* two file implementation of BinaryToText encodings such as base32 and base64
+/* single header base64 implementation
  *
  * encoder is able to encode inplace (you can overwrite input by output - there is
- * no need for another buffer). I haven't yet seen C lib able to do that.
+ * no need for another buffer).
  * Inspired by: https://github.com/dotnet/corefxlab/pull/834/files
  *
  * used namespaces: shlag_b64, SHLAG_B64

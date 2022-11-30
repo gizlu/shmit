@@ -1,5 +1,5 @@
 # shmit
-shit that don't deserve separate repos
+stuff that does not deserve to be split into multiple repos
 
 ## scripts
 | File           | Description |
