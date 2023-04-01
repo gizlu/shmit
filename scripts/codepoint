@@ -1,0 +1,4 @@
+#!/bin/sh
+# convert utf8 text from stdin to newline-seprated list of codepoints
+# Lower codepoints are zero-padded to 4 digits (e.g U+0105)
+iconv -t UTF-32BE | xxd -g4 -c4 | awk '{sub("^0?0?0?0?","",$2);print "U+" $2}'

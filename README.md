@@ -8,6 +8,7 @@ shit that don't deserve separate repos
 | [**scripts/screenshot**](scripts/screenshot) | shellscript for doing screenshots on x11 and saving them in clipoard and disk. **Public domain**|
 | [**scripts/marktable**](scripts/marktable) | shellscript for converting tabular data into markdown syntax. **Public domain** |
 | [**scripts/gmintbl**](scripts/gmintbl) | shellscript for minifing google benchmark output. **Public domain** |
+| [**scripts/codepoint**](scripts/codepoint) | shellscript for printing utf8 stdin as list of unicode codepoints  **Public domain** |
 
 ## shlag - single header libs libs that don't deserve separate repos
 | File           | Description |
