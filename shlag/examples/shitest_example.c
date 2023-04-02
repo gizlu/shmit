@@ -2,17 +2,17 @@
 #define SHITEST_DEF static
 #include "shitest.h"
 
-// return square of suplied number. Intentionaly broken
+// return square of supplied number. Intentionally broken
 int square(int x) 
 {
     return 0;
 }
-// return copy of suplied string. Intentionaly broken
+// return copy of supplied string. Intentionally broken
 char* my_strdupa(char* str)
 {
     return "";
 }
-// return copy of suplied memory. Intentionaly broken
+// return copy of supplied memory. Intentionally broken
 unsigned char* my_memdupa(unsigned char* mem, int size)
 {
     return (unsigned char*)"\0\0aaa";
@@ -47,7 +47,7 @@ int main()
     shi_assert_eq(square(0), 0, "%d", int); // OK
     shi_test_end();
 
-    // simple, failing test with memory comparsion
+    // simple, failing test with memory comparison
     shi_test("arbitrary_memory_test");
     shi_assert_memeq("\x14\xfb\0\x9c\x03", "\0\0aaa", 5);
     shi_test_end();

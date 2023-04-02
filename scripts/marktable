@@ -24,7 +24,7 @@ pipize() {
 columnize() {
     column -t -s "|" -o "|"
 }
-# insert delim row (like |---|-|--|) beetween header and body
+# insert delim row (like |---|-|--|) between header and body
 head_delim() {
     awk '{print} NR==1{gsub(/[^|]/, "-", $0); print}'
 }

@@ -1,8 +1,8 @@
-// shitest - poor's man test lib. I wrote it due to my discontent with fullbown
-// frameworks, such as gtest, which add lot of unnecesary abstraction that just
+// shitest - poor's man test lib. I wrote it due to my discontent with fullblown
+// frameworks, such as gtest, which add a lot of unnecessary abstraction that just
 // goes in your way (for instance - you can't just run tests in loop, good boys
 // use "parametrized test" magic). Shitest is just bunch of assert routines, wrappers
-// around printf, and short summary. Of course it lacks some fancier, yet
+// around printf, and short summary. Of course, it lacks some fancier, yet
 // sometimes useful features like timing, test order randomization or forking each
 // test into separate process (so other tests won't be affected by crash or
 // something). Too bad!
@@ -14,8 +14,8 @@
 //
 // KNOWN BUGS:
 // - Probably not thread safe. To be honest I haven't use threads yet, but I
-// hope that this is trivialy mitigable
-// - If you print some debug info during test case, sometimes ouput may
+// hope that this is trivially mitigable
+// - If you print some debug info during test case, sometimes output may
 // look kinda strange (it still should be readable tho). I don't have any simple 
 // mitigation idea
 
@@ -27,7 +27,7 @@
 #include <string.h>
 
 // Prepend public function definitions with whatever you want. You can use it
-// for example to make functions static. By default it does nothing
+// for example to make functions static. By default, it does nothing
 #ifndef SHITEST_DEF
  #define SHITEST_DEF
 #endif

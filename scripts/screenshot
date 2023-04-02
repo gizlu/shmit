@@ -16,7 +16,7 @@ case $1 in
         maim --format png $filename && xclip -sel clipboard -t image/png -i $filename
         ;;
     *)
-        printf "Usage: screenshoot {select|window|fullscreen}\n"
+        printf "Usage: screenshot {select|window|fullscreen}\n"
         exit
         ;;
 esac

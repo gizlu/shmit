@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #define SHLAG_B64_IMPL
-#define SHLAG_B64_DEF static // not needed, used just for presetation
+#define SHLAG_B64_DEF static // not needed, used just for presentation
 #include "shlag_b64.h"
 #define SHITEST_IMPL
-#define SHITEST_DEF static // not needed, used just for presetation
+#define SHITEST_DEF static // not needed, used just for presentation
 #include "shitest.h"
 
 typedef struct TestPair
@@ -21,7 +21,7 @@ typedef struct TestPair
 } TestPair;
 
 // construct test pair.
-// Last byte of @plain (preasumbly null terminator) is ignored
+// Last byte of @plain (presumably null terminator) is ignored
 #define TEST_PAIR(plain, encoded) \
 {(uint8_t*)(plain), #plain, encoded, sizeof((plain))-1, strlen(encoded)}
 
@@ -59,7 +59,7 @@ void b64enc_test(TestPair p, bool inplace)
 {
     shi_test("b64enc(%s)", p.plainStringized);
     // We don't use one big buffer for all tests despite we can, because it
-    // it could potentialy hide OOB bugs from sanitizer
+    // could potentially hide OOB bugs from sanitizer
     uint8_t* in;
     char* out = malloc(p.encodedLen + 1);
     if(inplace) {
@@ -97,7 +97,7 @@ void b64encsize_testsuite()
     for(unsigned i = 0; i<ARRSIZE(expected_lookup); ++i) {
         b64encsize_test(i, expected_lookup[i]);
     }
-    // max input not causing overfow
+    // max input not causing overflow
     b64encsize_test(6917529027641081853, 9223372036854775805);
     fputs(SHI_SEP, stderr);
 }
@@ -138,7 +138,7 @@ void b64dec_padded_testsuite(bool inplace)
     }
     fputs(SHI_SEP, stderr);
 }
-// return unpadded copy of suplied string (aka with `=` chars removed).
+// return unpadded copy of supplied string (aka with `=` chars removed).
 // It assumes valid encoding. You have to free it yourself
 char* unpad(char* in, int64_t inLen, int64_t* outLen)
 {
@@ -200,7 +200,7 @@ void b64dec_invalid_testsuite()
     b64dec_invalid_test("a}", 2);
     b64dec_invalid_test("a ", 2);
     b64dec_null_ch_test();
-    fprintf(stderr, "test if b64dec reports error on invalid lenght\n");
+    fprintf(stderr, "test if b64dec reports error on invalid length\n");
     b64dec_invalid_test("a", 1);
     b64dec_invalid_test("aaaaa", 5);
     fprintf(stderr, "test if b64dec reports error on invalid padding\n");

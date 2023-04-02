@@ -3,14 +3,14 @@
  *
  * Do this: #define SHLAG_PCG_IMPL
  * before you include this file in *one* C or C++ file to create the implementation.
- * You can also optionaly enable assertions by defining SHLAG_PCG_DEBUG
+ * You can also optionally enable assertions by defining SHLAG_PCG_DEBUG
  * Other compile time options: SHLAG_PCG_DEF, SHLAG_PCG_ASSERT, SHLAG_PCG_EXAMPLE
  *
  * Credits:
  * - PCG (Melissa O'Neill, MIT or Apache 2.0 licenses): https://github.com/imneme/pcg-c
  * - fast method for adjusting numbers to specified bound without bias (Daniel Lemire,
  *   Public Domain): https://lemire.me/blog/2016/06/30/fast-random-shuffling/
- *   Link includes benchmark and comparsion with other methods such as modulo
+ *   Link includes benchmark and comparison with other methods such as modulo
  *
  * I just combined someone else's work into convenient form and wrote some docs.
  * Changes that I introduced, are very trivial. You could consider them to
@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 // Prepend public function definitions with whatever you want. You can use it
-// for example to make functions static. By default it does nothing
+// for example to make functions static. By default, it does nothing
 #ifndef SHLAG_PCG_DEF
  #define SHLAG_PCG_DEF
 #endif

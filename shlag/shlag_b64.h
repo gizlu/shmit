@@ -34,11 +34,11 @@
 // SHLAG_B64_ENCSIZE(inSize) fits in int64_t
 SHLAG_B64_DEF void shlag_b64enc(const uint8_t* in, int64_t inSize, char* out);
 
-// cal size of @out buffer required for decoding @in of lenght @len
+// cal size of @out buffer required for decoding @in of length @len
 // Note: it may return slightly more than strictly needed (when padding used)
 #define SHLAG_B64_DECSIZE(len) (((int64_t)(len)*3)/4)
 
-// decode @in buffer, of specified lenght into @out buffer.
+// decode @in buffer, of specified length into @out buffer.
 // @out and @in may point to same buffer - output will just overwrite input
 // On success returns count of written bytes. On fail returns negative number
 SHLAG_B64_DEF int64_t shlag_b64dec(const char* in, int64_t inLen, uint8_t* out);
@@ -70,7 +70,7 @@ static inline void shlag_b64enc_leftover(const uint8_t* in, char* out, uint8_t l
     // yes, it is kinda hard to read as we encode from backwards (to make inplace enc possible)
     if(leftover == 2) {
         out[3] = '='; // padding
-        out[2] = shlag_b64chars[(in[1] & 0xF) << 2]; // 4 LSB from 2nd lefover byte
+        out[2] = shlag_b64chars[(in[1] & 0xF) << 2]; // 4 LSB from 2nd leftover byte
         out[1] = shlag_b64chars[(in[0] & 0x3) << 4 | (in[1] >> 4)]; // 2LSB from 1st, then 4MSB from 2nd
         out[0] = shlag_b64chars[in[0] >> 2]; // 6MSB from 1st byte
     } else { /* leftover == 1 */
