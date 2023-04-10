@@ -1,4 +1,4 @@
-project('shmit', 'c')
+project('shmit', 'c', 'cpp')
 shlagdir = include_directories('shlag/')
 
 b64test = executable('b64test', 'shlag/tests/b64test.c', include_directories : shlagdir)
@@ -20,3 +20,5 @@ test('run pcg_example with big range', pcg_example, args : args)
 
 args = ['5000', '9898989', '4294967295', '2137', '2138'] # [count, begin, end, seed1, seed2]
 test('run pcg_example with big nums and specified seed', pcg_example, args : args)
+
+dupa = executable('dupa', 'abyss/dupa.cpp')

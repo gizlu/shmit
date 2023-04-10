@@ -19,6 +19,8 @@ shit that don't deserve separate repos
 
 There are examples in `shlag/examples/` and tests in `shlag/tests/`
 
+## abyss - random, poorly documented stuff
+
 ### building tests and examples
 In root project dir run:
 ```

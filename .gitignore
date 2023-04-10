@@ -1,3 +1,7 @@
-tmp/
+# build/editor related stuff:
 build/
 compile_commands.json
+# files used for dirty, local experiments:
+abyss/dupa.cpp
+a.out
+tmp/
