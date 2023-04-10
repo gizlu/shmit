@@ -9,6 +9,7 @@ shit that don't deserve separate repos
 | [**scripts/marktable**](scripts/marktable) | shellscript for converting tabular data into markdown syntax. **Public domain** |
 | [**scripts/gmintbl**](scripts/gmintbl) | shellscript for minifing google benchmark output. **Public domain** |
 | [**scripts/codepoint**](scripts/codepoint) | shellscript for printing utf8 stdin as list of unicode codepoints  **Public domain** |
+| [**scripts/euclid**](scripts/codepoint) | awkscript that executes extended euclidean algorithm step-by-step  **Public domain** |
 
 ## shlag - single header libs libs that don't deserve separate repos
 | File           | Description |
