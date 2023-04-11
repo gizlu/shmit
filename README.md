@@ -21,6 +21,9 @@ stuff that does not deserve to be split into multiple repos
 There are examples in `shlag/examples/` and tests in `shlag/tests/`
 
 ## abyss - random, poorly documented stuff
+| File           | Description |
+|----------------|-------------|
+|[**trie.cpp**](abyss/trie.cpp)| Simple, universal [trie/prefix-tree](https://en.wikipedia.org/wiki/Trie) implementation |
 
 ### building tests and examples
 In root project dir run:
