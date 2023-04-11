@@ -216,3 +216,46 @@ int main(int argc, char** argv)
     // tree.recursiveFree(); 
     // Tree lives through whole program, and freeing it is slow, so we leave it up to OS
 }
+
+
+// Optimization idea 1: 
+// I thought about representing trie as LCRS (https://en.wikipedia.org/wiki/Left-child_right-sibling_binary_tree)
+// It would allow us replace realloc with very simple (and fast) memory pool like this (cpp-like pseudocode):
+#if 0
+std::vector<Node> nodePool;
+...
+nodepool.reserve(64MB);
+...
+
+// Return index of newly allocated node
+// NOTE: We don't use pointers for size optimization
+uint32_t nodeAlloc()
+{
+   nodePool.resize(nodePool.size+1);
+   return nodePool.size-1;
+}
+
+struct Node {
+   uint32_t childIdx;
+   uint32_t siblingIdx;
+   char letter; // in case of root this field is ignored
+   ...
+}
+// Lack of child/sibling could be represented with dummy index (like NULL pointer)
+
+// Bonus 1: Taking padding aside, Node is one byte smaller than before.
+// If you descend to using bitfields, you could probably even reduce it down to 7 or 8 bytes (and get rid of padding without pragmas)
+//
+// Bonus 2: It makes "Optimization idea 2" feasible
+#endif
+
+// Optimization idea 2 (Probably hard, and profit is dubious unless combined with optimization 1):
+// We could compress common suffixes (I recall there was algo for finite automata compression)
+//
+// Currently we store childs like this:
+// LetterTree* childs = {LetterTree{x,x,x}, LetterTree{y,y,y};
+// 
+// Common suffix compression would probably require storing pointer of each child separatly using:
+// a) Something like LetterTree** childs = {x_child_ptr, y_child_ptr};
+//    The problem is that it would immediately double memory usage (probably rendering compression useless)
+// b) Representation from optimization 1.
