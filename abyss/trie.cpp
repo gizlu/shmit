@@ -7,7 +7,19 @@
 
 // Simple universal (utf-8) trie implementation I written for early pass at 1st sem course "fundamentals of programming"
 // I tested it on SJP wordlist: https://sjp.pl/sl/growy/sjp-20230402.zip (42MB, 3.2 milion polish words)
-// Load to tree and quering tree with whole list takes 1.2s on machine (0.8s load, 0.4 query) and uses ~88MB memory
+// On my machine:
+// Load to tree takes 0.7s and uses ~88MB memory
+// Quering tree with same (sorted) list takes 0.4s
+// Quering tree with shuffled list (worst case I guess) takes 2.4s
+// Yeah, random memory access cost a lot
+//
+// For the reference: 
+// Load to std::unordered_set<std::string> takes 1.1s, sorted query - 1.1s, unsorted - 1.5s
+// Memory usage is harder to estimate with that one, but it seems to use a lot more
+// More finely tuned hashmap would probably be even better
+//
+// After all, trie (at least that simple) seems to be only worth to give a fuck if you 
+// need prefix search (or maybe when you have a lot of similar queries or a lot of mismatches)
 
 #define MAXLINE 256
 // Max size of "word" buffer you can save in tree.
@@ -217,11 +229,14 @@ int main(int argc, char** argv)
     // Tree lives through whole program, and freeing it is slow, so we leave it up to OS
 }
 
-
-// Optimization idea 1: 
-// I thought about representing trie as LCRS (https://en.wikipedia.org/wiki/Left-child_right-sibling_binary_tree)
-// It would allow us replace realloc with very simple (and fast) memory pool like this (cpp-like pseudocode):
+// Optimization ideas (listed mostly out of academic curiosity)
+// I don't know whether I will implement them, as:
+// 1) They would likely make this "simple trie" complicated
+// 2) I have no real use case for this and I probably have more important stuff to do
+// 3) For sure, faster implementations already exist 
 #if 0
+// We could represent tree as LCRS (https://en.wikipedia.org/wiki/Left-child_right-sibling_binary_tree)
+// It would allow us replace realloc with very simple (and fast) memory pool like this (cpp-like pseudocode):
 std::vector<Node> nodePool;
 ...
 nodepool.reserve(64MB);
@@ -238,24 +253,17 @@ uint32_t nodeAlloc()
 struct Node {
    uint32_t childIdx;
    uint32_t siblingIdx;
-   char letter; // in case of root this field is ignored
+   char letter;
    ...
 }
-// Lack of child/sibling could be represented with dummy index (like NULL pointer)
-
-// Bonus 1: Taking padding aside, Node is one byte smaller than before.
-// If you descend to using bitfields, you could probably even reduce it down to 7 or 8 bytes (and get rid of padding without pragmas)
-//
-// Bonus 2: It makes "Optimization idea 2" feasible
-#endif
-
-// Optimization idea 2 (Probably hard, and profit is dubious unless combined with optimization 1):
-// We could compress common suffixes (I recall there was algo for finite automata compression)
-//
-// Currently we store childs like this:
-// LetterTree* childs = {LetterTree{x,x,x}, LetterTree{y,y,y};
 // 
-// Common suffix compression would probably require storing pointer of each child separatly using:
-// a) Something like LetterTree** childs = {x_child_ptr, y_child_ptr};
-//    The problem is that it would immediately double memory usage (probably rendering compression useless)
-// b) Representation from optimization 1.
+// I'm not sure, but I intuitively guess, that if we (re)build such LCRS in breadth-first order
+// then (assuming that node has child) childIdx = indexof(node) + countOfSiblingsThatGoAfter
+// If I am correct, then we could represent each node in just two bytes without worring about padding!
+// struct Node {
+//   uint8_t rightSiblingCount; // max is 254
+//   char letter; // if not '\0' then it has child(s)
+//   ...
+// }
+// It could be compressed even more by storing count of siblings once per each "level" (e.g. in separate vector)
+#endif
