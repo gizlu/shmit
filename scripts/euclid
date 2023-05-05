@@ -1,5 +1,8 @@
 #!/usr/bin/awk -f
-function gcd(a, b) {
+# visualisation of extended euclides algorithm (ax + by = gcd(a,b))
+# usage: euclid a b
+# You should pipe output to `marktable` or `column -t`, as it is barely readable otherwise
+function euclid(a, b) {
     orig_a = a; orig_b = b; 
     old_x = 1; x = 0;
     old_y = 0; y = 1;
@@ -13,4 +16,7 @@ function gcd(a, b) {
         print a,q,old_x,old_y,orig_a"*"old_x"+"orig_b"*"old_y"="a;
     }
 }
-$1 && $2 { gcd($1, $2) }
+BEGIN { 
+   if(ARGC == 3) euclid(ARGV[1], ARGV[2]);
+   else { print "usage: euclid a b"; exit 1 }
+}
