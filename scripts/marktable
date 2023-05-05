@@ -2,38 +2,25 @@
 
 # Script for converting tabular data into markdown syntax. Public Domain
 # Example:
-# $ printf "foo bar foobar\\naa bb c\\n" | marktable
+# $ printf "foo bar foobar\naa bb c\n" | marktable
 #  | foo | bar | foobar |
 #  |-----|-----|--------|
 #  | aa  | bb  | c      |
+# 
+#  You can "de-marktable" with oneliner such as: awk '{gsub(/[|]/,""); gsub("^ +| +$","")} NR!=2'
 
 usage() {
- printf 'Usage:
- %s [options] < file
-Options
- -F awk-field-sep-string:
-   Set input field delim (awk syntax). Default: any run of whitespaces
-' "$0" >&2
+ printf 'Usage: %s [-F FS] < file\n' "$0" >&2
+ printf 'Field separator uses awk syntax, and defaults to any run of blanks\n' >&2
  exit 1
 }
 
-# swallow field sep (first arg), and surround each field with space and pipe
-pipize() {
-    awk -F "$1" -v OFS=" | " '{ $1=$1; printf "| %s |\n", $0 }'
-}
-columnize() {
-    column -t -s "|" -o "|"
-}
-# insert delim row (like |---|-|--|) between header and body
-head_delim() {
-    awk '{print} NR==1{gsub(/[^|]/, "-", $0); print}'
-}
-
-if [ "$1" = '-F' ] && [ "$#" -eq 2 ]; then
-    sep="$2"
+if [ "$1" = '-F' ]; then
+    [ "$#" -eq 2 ] && FS="$2" || usage
 else
-    [ "$#" -eq 0 ] || usage
-    sep='[ \t\n]+'
+    [ "$#" -eq 0 ] && FS='[ \t]+' || usage
 fi
 
-pipize "$sep" <&0 | columnize | head_delim
+awk -F "$FS" -v OFS=" | " '{ $1=$1; print "| "$0" |"; }' | # swallow FS and insert pipes/spaces
+column -t -s "|" -o "|" | # equalize whitespace padding
+awk '1; NR==1{gsub(/[^|]/, "-", $0); print}' # insert row like |---|-|--| between head and body
